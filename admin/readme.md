@@ -4,7 +4,7 @@
 
 <img src="../img/admin01.png" style="zoom:50%;" />
 
-- admin模块（作为父maven工程管理子模块）
+- admin模块（作为父工程管理子模块）
   - webui 
   - component
   - entity 
