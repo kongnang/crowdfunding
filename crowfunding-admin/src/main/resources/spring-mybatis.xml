@@ -33,5 +33,5 @@
         <property name="basePackage" value="com.admin.mapper"/>
     </bean>
 
-    <bean id="adminService" class="com.admin.impl.AdminServiceImpl"/>
+    <bean id="adminService" class="com.admin.service.impl.AdminServiceImpl"/>
 </beans>

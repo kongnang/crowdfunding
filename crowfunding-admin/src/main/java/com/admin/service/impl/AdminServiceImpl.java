@@ -1,13 +1,10 @@
-package com.admin.impl;
+package com.admin.service.impl;
 
 import com.admin.entity.Admin;
 import com.admin.mapper.AdminMapper;
 import com.admin.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @author qiu
