@@ -22,7 +22,7 @@ public class Generator {
         try {
             List<String> warnings = new ArrayList<String>();
             boolean overwrite = true;
-            File configFile = new File("./common/reverse/src/main/resources/generatorConfig.xml");
+            File configFile = new File("./crowfunding-common/reverse/src/main/resources/generatorConfig.xml");
             ConfigurationParser cp = new ConfigurationParser(warnings);
             Configuration config = cp.parseConfiguration(configFile);
             DefaultShellCallback callback = new DefaultShellCallback(overwrite);
