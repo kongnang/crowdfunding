@@ -14,6 +14,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class SpringConfigTest {
     @Test
     public void test(){
+
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-mybatis.xml");
         AdminService adminService =(AdminServiceImpl) applicationContext.getBean("adminService");
 

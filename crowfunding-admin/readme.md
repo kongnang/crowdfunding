@@ -82,11 +82,11 @@ CREATE TABLE admin(
                         password="bruce123"/>
 
         <!--实体类-->
-        <javaModelGenerator targetPackage="entity" targetProject="./admin/entity/src/main/java"/>
+        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowfunding-admin/src/main/java"/>
         <!--映射文件-->
-        <sqlMapGenerator targetPackage="/resources" targetProject="./admin/component/src/main"/>
+        <sqlMapGenerator targetPackage="/resources" targetProject="./crowfunding-admin/src/main"/>
         <!--接口类-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="mapper" targetProject="./admin/component/src/main/java"/>
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowfunding-admin/src/main/java"/>
 
         <table tableName="admin" />
     </context>
@@ -114,18 +114,123 @@ public class Generator {
 }
 ```
 
-### 1.4 父工程依赖引入
+### 1.4 依赖引入
 
 [pom.xml](./pom.xml)
 
-### 1.5 子工程依赖引入
+### 1.5 Spring整合Mybatis
 
-考虑到依赖关系，将依赖引入到component模块的pom.xml下
+#### 1.5.1 配置数据库
 
+```properties
+jdbc.driver=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/exercise?serverTimezone=UTC
+jdbc.user=root
+jdbc.password=bruce123
+```
 
+#### 1.5.2 配置spring-batis.xml
 
-### 1.6 Spring整合Mybatis
+- 注册数据源`DataSource`
+- 注册`SqlSessionFactoryBean`
+- 注册`MapperScannerConfigurer`
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <!--扫描IOC组件-->
+    <context:component-scan base-package="com.admin"/>
+
+    <!--配置数据源-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!--配置SqlSessionFactoryBean-->
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--装配数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--指定映射文件位置-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <!--配置MapperScannerConfigurer-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--指定接口类所在包-->
+        <property name="basePackage" value="com.admin.mapper"/>
+    </bean>
+
+    <bean id="adminService" class="com.admin.service.impl.AdminServiceImpl"/>
+</beans>
+```
+
+#### 1.5.3 整合结果测试
+
+创建`AdminService`接口和`AdminServiceImpl`实现类
+
+在`AdminServiceImpl`中做CRUD的具体实现
+
+```java
+package com.admin.mapper;
+
+public interface AdminMapper {
+    Admin selectById(Integer id);
+}
+```
+
+```java
+package com.admin.service;
+
+public interface AdminService {
+    Admin selectById(Integer id);
+}
+```
+
+```java
+package com.admin.service.impl;
+
+@Service
+public class AdminServiceImpl implements AdminService {
+    @Autowired
+    AdminMapper adminMapper;
+
+    @Override
+    public Admin selectById(Integer id) {
+        Admin admin = adminMapper.selectById(id);
+        return admin;
+    }
+}
+```
+
+![](../img/admin-001.png)
+
+测试类：
+
+```java
+package com.admin;
+
+public class SpringConfigTest {
+    @Test
+    public void test(){
+        //加载配置文件中的bean加载到容器中
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-mybatis.xml");
+        AdminService adminService =(AdminServiceImpl) applicationContext.getBean("adminService");
+
+        Admin admin = adminService.selectById(1);
+        System.out.println(admin);
+    }
+}
+```
 
 ## 2 日志系统
