@@ -215,22 +215,133 @@ public class AdminServiceImpl implements AdminService {
 
 ![](../img/admin-001.png)
 
-测试类：
+测试：
 
 ```java
-package com.admin;
+@Test
+public void test(){
+    //加载配置文件中的bean加载到容器中
+    ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-mybatis.xml");
+    AdminService adminService =(AdminServiceImpl) applicationContext.getBean("adminService");
 
-public class SpringConfigTest {
-    @Test
-    public void test(){
-        //加载配置文件中的bean加载到容器中
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-mybatis.xml");
-        AdminService adminService =(AdminServiceImpl) applicationContext.getBean("adminService");
-
-        Admin admin = adminService.selectById(1);
-        System.out.println(admin);
-    }
+    Admin admin = adminService.selectById(1);
+    System.out.println(admin);
 }
 ```
 
-## 2 日志系统
+### 1.6 日志系统
+
+#### 1.6.1 日志门面与实现
+
+- 门面
+  - JCL(Jakarta Commons Logging)
+  - SLF4J(Simple Logging Facade for Java)
+
+- 实现
+  - log4j
+  - JUL(java.util.logging)
+  - log4j2
+  - logback
+
+>SLF4J,log4j,logback是同一作者
+>
+>log4j2是Apache收购log4j后进行全面重构，内部实现和log4j完全不同
+
+#### 1.6.2 SLF4J日志系统整合
+
+SLF4J是日志门面，只提供了API没有实现，需要其它日志来实现
+
+![](../img/admin-003.png)
+
+SLF4J和logback-classic/log4j/jul的整合
+
+![](../img/admin-004.png)
+
+这里我们使用SLF4J和logback-classic的整合。
+
+需要注意的是，Spring自带**commons-logging**包，需要**排除**该jar包后引入引入日志框架中间转换包。
+
+![](../img/admin-002.png)
+
+```xml
+<!--日志-->
+    <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.32</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.7</version>
+        <scope>test</scope>
+    </dependency>
+    <!--其它日志框架中间转换包-->
+    <!-- https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>1.7.32</version>
+    </dependency>
+
+<!--
+排除spring中自带的commons-logging
+可能不止这个依赖需要排除，其它spring依赖可能也需要
+-->
+	<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>5.3.13</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+    </dependency>
+```
+
+#### 1.6.3 logback配置(简单配置)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <!-- 指定日志输出的位置-->
+    <appender name="STDOUT"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- 日志输出的格式-->
+            <!-- 按照顺序分别是：时间、日志级别、线程名称、打印日志的类、日志主体
+            内容、换行-->
+            <pattern>[%d{HH:mm:ss.SSS}] [%-5level] [%thread] [%logger]
+                [%msg]%n</pattern>
+        </encoder>
+    </appender>
+    <!-- 设置全局日志级别。日志级别按顺序分别是：DEBUG、INFO、WARN、ERROR -->
+    <!-- 指定任何一个日志级别都只打印当前级别和后面级别的日志。-->
+    <root level="INFO">
+        <!-- 指定打印日志的appender，这里通过“STDOUT”引用了前面配置的appender -->
+        <appender-ref ref="STDOUT" />
+    </root>
+    <!-- 根据特殊需求指定局部日志级别-->
+    <logger name="com.admin.SpringConfigTest" level="DEBUG"/>
+</configuration>
+```
+
+#### 1.6.4 测试
+
+```java
+@Test
+public void logTest(){
+    // 获取Logger对象
+    Logger logger = LoggerFactory.getLogger(SpringConfigTest.class);
+
+    logger.debug("debug level");
+    logger.info("info level");
+    logger.warn("warn level");
+    logger.error("error level");
+}
+```
+
