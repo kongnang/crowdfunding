@@ -345,3 +345,134 @@ public void logTest(){
 }
 ```
 
+### 1.7 声明式事务
+
+>事务是数据库操作最基本单元，逻辑上一组操作，要么都成功，如果有一个失败所有操作都失败。
+>
+>Spring中声明式事务管理有两种：基于xml和基于注解。
+>
+>该项目中使用的是基于xml方式
+
+#### 1.7.1 编程式事务
+
+```java
+try {
+    // 核心操作前：开启事务（关闭自动提交）
+    // 对应AOP 的前置通知
+    connection.setAutoCommit(false);
+    // 核心操作
+    adminService.updateXxx(xxx, xxx);
+    // 核心操作成功：提交事务
+    // 对应AOP 的返回通知
+    connection.commit();
+    }catch(Exception e){
+    // 核心操作失败：回滚事务
+    // 对应AOP 的异常通知
+    connection.rollBack();
+    }finally{
+    // 不论成功还是失败，核心操作终归是结束了
+    // 核心操作不管是怎么结束的，都需要释放数据库连接
+    // 对应AOP 的后置通知
+    if(connection != null){
+    	connection.close();
+    }
+}
+```
+
+编程式事务每次都需要开启事务，关闭事务等操作，会造成代码臃肿，所以使用声明式事务来简化。
+
+#### 1.7.2 基于xml的声明式事务管理
+
+- 思路：
+
+![](../img/admin-005.jpg)
+
+- 引入AOP依赖
+
+  ```XML
+  <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+  <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <version>1.9.6</version>
+      <scope>runtime</scope>
+  </dependency>
+  <!-- https://mvnrepository.com/artifact/cglib/cglib -->
+  <!--没有接口时使用CGLIB动态代理-->
+  <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>3.3.0</version>
+  </dependency>
+  ```
+
+- 创建spring-tx.xml配置文件
+
+  ```xml
+  <!--配置事务管理器-->
+  <bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+      <property name="dataSource" ref="dataSource"/>
+  </bean>
+  
+  <!--配置aop-->
+  <aop:config>
+      <!--配置切入点表达式-->
+      <!--public Admin com.admin.service.impl.AdminServiceImpl(Integer id)-->
+      <aop:pointcut id="pointCut" expression="execution(* * ..*service.impl.* (..))"/>
+  
+      <!--将事务通知和切入点表达式关联在一起-->
+      <aop:advisor advice-ref="advisor" pointcut-ref="pointCut"/>
+  </aop:config>
+  
+  <!--配置事务通知-->
+  <!--transaction-manager 属性用于引用事务管理器-->
+  <tx:advice id="advisor" transaction-manager="dataSourceTransactionManager">
+      <tx:attributes>
+          <!--name 属性指定当前要配置的事务方法的方法名
+              一般将查询方法设置为只读，便于数据库根据只读属性进行相关性能优化-->
+          <tx:method name="get*" read-only="true"/>
+          <tx:method name="select*" read-only="true"/>
+          <tx:method name="query*" read-only="true"/>
+          <tx:method name="find*" read-only="true"/>
+          <tx:method name="count*" read-only="true"/>
+  
+          <!--增删改查方法-->
+          <!-- propagation 属性配置事务方法的传播行为
+              默认值：REQUIRED 表示：当前方法必须运行在事务中，如果没有事务，则开
+              启事务，在自己的事务中运行。如果已经有了已开启的事务，则在当前事务中运行。有可能
+              和其他方法共用同一个事务。
+              建议值：REQUIRES_NEW 表示：当前方法必须运行在事务中，如果没有事务，
+              则开启事务，在自己的事务中运行。和REQUIRED 的区别是就算现在已经有了已开启的事务，
+              也一定要开启自己的事务，避免和其他方法共用同一个事务。-->
+          <!-- rollback-for 属性配置回滚的异常
+               默认值：运行时异常
+               建议值：编译时异常+运行时异常-->
+          <tx:method name="insert*" propagation="REQUIRES_NEW" rollback-for="java.lang.Exception"/>
+          <tx:method name="update*" propagation="REQUIRES_NEW" rollback-for="java.lang.Exception"/>
+          <tx:method name="delete*" propagation="REQUIRES_NEW" rollback-for="java.lang.Exception"/>
+      </tx:attributes>
+  </tx:advice>
+  ```
+
+#### 1.7.3 基于注解的声明式事务管理
+
+- 在配置文件中开启事务注解
+
+  ```xml
+  <!--开启事务注解--> 
+  <tx:annotation-driven transaction-manager="transactionManager"/>
+  ```
+
+- 使用注解
+
+  - @Transactional，这个注解添加到类上面，也可以添加方法上面
+  - 如果把这个注解添加类上面，这个类里面所有的方法都添加事务
+  - 如果把这个注解添加方法上面，为这个方法添加事务
+
+  ```java
+  @Service
+  @Transactional
+  public class AdminServiceImpl {}
+  ```
+
+  
