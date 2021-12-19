@@ -9,11 +9,11 @@
                         password="bruce123"/>
 
         <!--实体类-->
-        <javaModelGenerator targetPackage="entity" targetProject="./admin/entity/src/main/java"/>
+        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowfunding-admin/src/main/java"/>
         <!--映射文件-->
-        <sqlMapGenerator targetPackage="/resources" targetProject="./admin/component/src/main"/>
+        <sqlMapGenerator targetPackage="/resources" targetProject="./crowfunding-admin/src/main"/>
         <!--接口类-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="mapper" targetProject="./admin/component/src/main/java"/>
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowfunding-admin/src/main/java"/>
 
         <table tableName="admin" />
     </context>
