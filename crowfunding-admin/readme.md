@@ -416,11 +416,9 @@ try {
   
   <!--配置aop-->
   <aop:config>
-      <!--配置切入点表达式-->
-      <!--public Admin com.admin.service.impl.AdminServiceImpl(Integer id)-->
-      <aop:pointcut id="pointCut" expression="execution(* * ..*service.impl.* (..))"/>
-  
-      <!--将事务通知和切入点表达式关联在一起-->
+      <!--配置切入点-->
+      <aop:pointcut id="pointCut" expression="execution(* *..*service.impl.*(..))"/>
+      <!--配置切面：将通知应用到切入点-->
       <aop:advisor advice-ref="advisor" pointcut-ref="pointCut"/>
   </aop:config>
   
@@ -474,5 +472,3 @@ try {
   @Transactional
   public class AdminServiceImpl {}
   ```
-
-  
