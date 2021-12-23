@@ -13,7 +13,7 @@
     <!-- 配置ContextLoaderListener 加载 Spring配置文件-->
     <listener>
         <listener-class>
-            org.springframework.web.context.ContextCleanupListener
+            org.springframework.web.context.ContextLoaderListener
         </listener-class>
     </listener>
 
