@@ -472,3 +472,115 @@ try {
   @Transactional
   public class AdminServiceImpl {}
   ```
+
+### 1.8 表述层搭建
+
+#### 1.8.1 Tomcat服务器启动过程
+
+![](../img/admin-006.png)
+
+#### 1.8.2 spring mvc执行流程
+
+![](../img/admin-005.png)
+
+#### 1.8.3 配置web.xml
+
+web.xml文件放在src/main/web/WEB-INF
+
+```xml
+<!-- 指定Spring配置文件所在目录-->
+<context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:spring-persist-tx.xml</param-value>
+</context-param>
+
+<!-- 配置ContextLoaderListener 加载 Spring配置文件-->
+<listener>
+    <listener-class>
+        org.springframework.web.context.ContextLoaderListener
+    </listener-class>
+</listener>
+
+<!-- 配置 解决Post请求字符乱码的问题-->
+<!-- 此filter必须在所有filter前面 -->
+<filter>
+    <filter-name>characterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <!--指定字符集-->
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>UTF-8</param-value>
+    </init-param>
+    <!--强制请求编码-->
+    <init-param>
+        <param-name>forceRequestEncoding</param-name>
+        <param-value>true</param-value>
+    </init-param>
+    <!-- 强制响应进行编码-->
+    <init-param>
+        <param-name>forceResponseEncoding</param-name>
+        <param-value>true</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>characterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+<!-- 配置前端控制器 -->
+<servlet>
+    <servlet-name>dispatcherServlet</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <!--指定SpringMvc的配置文件所在位置-->
+    <init-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring-web-mvc.xml</param-value>
+    </init-param>
+
+    <load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+    <servlet-name>dispatcherServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+</servlet-mapping>
+```
+
+#### 1.8.4 配置spring-web-mvc.xml（配置前端控制器）
+
+```xml
+<context:component-scan base-package="com.admin.controller"/>
+
+<!-- 配置视图解析器 -->
+<bean id="vireResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <!--视图前缀-->
+    <property name="prefix" value="/"/>
+    <!--视图后缀-->
+    <property name="suffix" value=".html"/>
+</bean>
+
+<!--
+    处理静态资源，例如html、js、css、jpg
+    若只设置该标签，则只能访问静态资源，其他请求则无法访问
+    此时必须设置<mvc:annotation-driven/>解决问题
+    -->
+<mvc:default-servlet-handler/>
+
+<!-- 启用注解驱动-->
+<mvc:annotation-driven/>
+```
+
+#### 1.8.5 测试
+
+```java
+@Controller
+public class ControllerTest {
+
+    @RequestMapping("/test")
+    public String test(){
+        return "success";
+    }
+}
+```
+
+
+
