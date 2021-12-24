@@ -483,7 +483,28 @@ try {
 
 ![](../img/admin-005.png)
 
-#### 1.8.3 配置web.xml
+#### 1.8.3 引入依赖
+
+```xml
+        <!--servlet-->
+        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--jsp页面依赖-->
+        <!-- https://mvnrepository.com/artifact/javax.servlet.jsp/javax.servlet.jsp-api -->
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+            <version>2.3.3</version>
+            <scope>provided</scope>
+        </dependency>
+```
+
+#### 1.8.4 配置web.xml
 
 web.xml文件放在src/main/web/WEB-INF
 
@@ -545,7 +566,7 @@ web.xml文件放在src/main/web/WEB-INF
 </servlet-mapping>
 ```
 
-#### 1.8.4 配置spring-web-mvc.xml（配置前端控制器）
+#### 1.8.5 配置spring-web-mvc.xml（配置前端控制器）
 
 ```xml
 <context:component-scan base-package="com.admin.controller"/>
@@ -569,7 +590,7 @@ web.xml文件放在src/main/web/WEB-INF
 <mvc:annotation-driven/>
 ```
 
-#### 1.8.5 测试
+#### 1.8.6 测试
 
 ```java
 @Controller

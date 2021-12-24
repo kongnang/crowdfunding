@@ -21,8 +21,7 @@ public class SpringConfigTest {
      */
     @Test
     public void mapperTest(){
-
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-mybatis.xml");
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-persist-mybatis.xml");
         AdminService adminService =(AdminServiceImpl) applicationContext.getBean("adminService");
 
         Admin admin = adminService.selectById(1);
