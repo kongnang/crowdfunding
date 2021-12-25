@@ -14,7 +14,7 @@
         <!--视图前缀-->
         <property name="prefix" value="/"/>
         <!--视图后缀-->
-        <property name="suffix" value=".html"/>
+        <property name="suffix" value=".jsp"/>
     </bean>
 
     <!--
