@@ -603,5 +603,152 @@ public class ControllerTest {
 }
 ```
 
+### 1.9 异常映射
+
+#### 1.9.1 工作机制
+
+![](../img/admin-007.png)
+
+浏览器请求可能是Ajax请求，也可能是普通请求。
+
+如果是普通请求，处理后返回ModelAndView对象。
+
+如果是Ajax请求，返回json数据。注意，需要对返回的json数据进行封装处理，否则，前端不知道这个json数据是正常的还是异常信息。
+
+#### 1.9.2 json统一结果封装
+
+ResultEntity用于统一项目中所有Ajax请求返回值类型
+
+```java
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ResultEntity<T> {
+    private String operationResult;
+    private String operationMessage;
+    private T data;
+
+    // operationResult
+    public static final String SUCCESS = "SUCCESS";
+    public static final String FAILE = "FAILE";
+    // operationMessage
+    public static final String NO_MESSAGE = "NO_MESSAGE";
+    public static final String NO_DATA = "NO_DATA";
+
+    /**
+     * 返回操作结果，成功，不带数据
+     * @param <E> 泛型
+     * @return
+     */
+    public static <E> ResultEntity<E> successWithoutData(){
+        return new ResultEntity<E>(SUCCESS,NO_MESSAGE,null);
+    }
+
+    /**
+     * 返回操作结果，成功，携带数据
+     * @param data 请求的数据
+     * @param <E> 数据类型
+     * @return
+     */
+    public static <E> ResultEntity<E> successWithData(E data){
+        return new ResultEntity<E>(SUCCESS,NO_MESSAGE,data);
+    }
+
+    /**
+     * 返回操作结果，错误
+     * @param message
+     * @param <E>
+     * @return
+     */
+    public static <E> ResultEntity<E> fail(String message){
+        return new ResultEntity<E>(FAILE,message,null);
+    }
+}
+```
+
+#### 1.9.3 判断请求类型
+
+AdminUtil中的judgeAjaxRequest方法用于判断请求类型是Ajax请求还是普通请求
+
+根据请求头中的Accept:application/json或者X-Request-With:XMLHttpRequest时，请求类型为Ajax请求
+
+```java
+/**
+     * 判断请求是否为Ajax请求
+     * @param request
+     * @return 如果请求头信息中的Accept:application/json或X-Request-With:XMLHttpRequest返回true
+     */
+public static boolean judgeAjaxRequest(HttpServletRequest request){
+    String accept = request.getHeader("Accept");
+    String xRequestWith = request.getHeader("X-Request-With");
+
+    return((accept != null && accept == "application/json")
+           ||
+           (xRequestWith != null && xRequestWith == "XMLHttpRequest"));
+
+}
+```
+
+#### 1.9.4 实现异常映射
+
+可以通过xml配置或者配置类来实现：
+
+- 当使用`mvc:view-controller`，使用xml配置
+- 当使用`@RequestMapping`，使用配置类来配置
+
+这里我使用配置类来实现
+
+```java
+@ControllerAdvice //表示当前类是一个处理异常的类
+public class ExceptionResolver {
+
+	//todo 具体异常
+
+    /**
+     * 异常处理的核心方法，具体异常处理调用该方法即可
+     * @param exception
+     * @param request
+     * @param response
+     * @param viewName 视图名称
+     * @return
+     * @throws IOException
+     */
+    private ModelAndView commonExceptionResolver(Exception exception,
+                                                 HttpServletRequest request,
+                                                 HttpServletResponse response,
+                                                 String viewName) throws IOException {
+        // 1.判断是当前请求是普通请求还是Ajax请求（普通请求需要返回页面，Ajax请求只需要返回jason）
+        boolean judgeAjaxRequest = AdminUtil.judgeAjaxRequest(request);
+        // 2.如果是Ajax请求
+        if(judgeAjaxRequest){
+            // 3.获取错误信息
+            String message = exception.getMessage();
+            // 4.创建ResultEntity对象，统一Ajax请求的返回类型
+            ResultEntity<Object> resultEntity = ResultEntity.fail(message);
+            // 5.创建gson对象，将resultEntity转换为json字符串
+            Gson gson = new Gson();
+            String json = gson.toJson(resultEntity);
+            // 6.返回json
+            PrintWriter writer = response.getWriter();
+            writer.write(json);
+            // 7.返回null，不返回ModelAndView对象
+            return null;
+        }
+
+        // 如果是普通请求
+        // 8.创建ModelAndView对象
+        ModelAndView modelAndView = new ModelAndView();
+        // 9.将Exception存入对象
+        modelAndView.addObject("Exception",exception);
+        // 10.设置目标视图名称
+        modelAndView.setViewName("viewName");
+        // 11.返回modelAndView对象
+        return modelAndView;
+    }
+}
+```
+
+
+
 
 
