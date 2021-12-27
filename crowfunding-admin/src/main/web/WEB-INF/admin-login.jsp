@@ -14,12 +14,11 @@
     <meta name="description" content="">
     <meta name="keys" content="">
     <meta name="author" content="">
-    <base href="http://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}"/>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/login.css">
-    <script type="text/javascript" src="../static/jquery/jquery-2.1.1.min.js"/>
-    <script type="text/javascript" src="../static/bootstrap/js/bootstrap.min.js"/>
+    <link rel="stylesheet" href="./static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./static/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./static/css/login.css">
+    <script type="text/javascript" src="./static/jquery/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="./static/bootstrap/js/bootstrap.min.js"></script>
     <style>
 
     </style>
@@ -34,8 +33,7 @@
 </nav>
 
 <div class="container">
-
-    <form action="admin/login.html" method="post" class="form-signin" role="form">
+    <form action="/login" method="post" class="form-signin" role="form">
         <h2 class="form-signin-heading"><i class="glyphicon glyphicon-log-in"></i> 管理员登录</h2>
         <div class="form-group has-success has-feedback">
             <input type="text" name="Login Account" class="form-control" id="inputSuccess4" placeholder="请输入登录账号" autofocus>
@@ -45,7 +43,7 @@
             <input type="text" name="Password" class="form-control" id="inputSuccess4" placeholder="请输入登录密码" style="margin-top:10px;">
             <span class="glyphicon glyphicon-lock form-control-feedback"></span>
         </div>
-        <a type="submit" class="btn btn-lg btn-success btn-block"> 登录</a>
+        <botton type="submit" class="btn btn-lg btn-success btn-block">登录</botton>
     </form>
 </div>
 </body>

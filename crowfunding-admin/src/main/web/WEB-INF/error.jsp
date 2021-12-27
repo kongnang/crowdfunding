@@ -14,12 +14,11 @@
     <meta name="description" content="">
     <meta name="keys" content="">
     <meta name="author" content="">
-    <base href="http://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}"/>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/login.css">
-    <script type="text/javascript" src="../static/jquery/jquery-2.1.1.min.js"/>
-    <script type="text/javascript" src="../static/bootstrap/js/bootstrap.min.js"/>
+    <link rel="stylesheet" href="./static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./static/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./static/css/login.css">
+    <script type="text/javascript" src="./static/jquery/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="./static/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript">
         $(function(){
             $("button").click(function(){
@@ -51,7 +50,7 @@
     .message相当于exception.getMessge()
     -->
     <h3>${requestScope.exception.message}</h3>
-    <button style="width: 300px;margin: 0px auto 0px auto;" class="btn btn-lg btn-success btn-block">返回刚才页面 返回刚才页面 返回刚才页面 </button>
+    <button style="width: 300px;margin: 0px auto 0px auto;" class="btn btn-lg btn-success btn-block">返回刚才页面</button>
 </div>
 </body>
 </html>

@@ -21,10 +21,10 @@ public class SpringConfigTest {
      */
     @Test
     public void mapperTest(){
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-persist-mybatis.xml");
-        AdminService adminService =(AdminServiceImpl) applicationContext.getBean("adminService");
-
-        Admin admin = adminService.selectById(1);
+//        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-persist-mybatis.xml");
+//        AdminService adminService =(AdminServiceImpl) applicationContext.getBean("adminService");
+//
+//        Admin admin = adminService.selectById(1);
 
         //System.out.println(admin);
         //实际开发中不适用system.out，其本质是IO操作，对性能影响较大
