@@ -7,8 +7,7 @@
             <!-- 日志输出的格式-->
             <!-- 按照顺序分别是：时间、日志级别、线程名称、打印日志的类、日志主体
             内容、换行-->
-            <pattern>[%d{HH:mm:ss.SSS}] [%-5level] [%thread] [%logger]
-                [%msg]%n</pattern>
+            <pattern>[%d{HH:mm:ss.SSS}] [%-5level] [%thread] [%logger] [%msg]%n</pattern>
         </encoder>
     </appender>
     <!-- 设置全局日志级别。日志级别按顺序分别是：DEBUG、INFO、WARN、ERROR -->
@@ -18,5 +17,6 @@
         <appender-ref ref="STDOUT" />
     </root>
     <!-- 根据特殊需求指定局部日志级别-->
-    <logger name="com.admin.SpringConfigTest" level="DEBUG"/>
+    <logger name="com.admin.SpringConfigTest" level="INFO"/>
+    <logger name="com.admin" level="DEBUG"/>
 </configuration>

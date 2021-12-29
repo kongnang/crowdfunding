@@ -20,4 +20,8 @@
     select * from admin where id = #{id}
   </select>
 
+  <select id="selectByAdminAccAndPwd" resultMap="BaseResultMap">
+    select * from admin where login_acct = #{login_acct} and user_pswd = #{user_pswd}
+  </select>
+
 </mapper>

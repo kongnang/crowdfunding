@@ -1,6 +1,10 @@
 package com.admin.config;
 
+import com.admin.service.AdminService;
+import com.exception.AccessForbiddenException;
+import com.exception.LoginFailedException;
 import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -9,10 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.util.ResultEntity;
-import com.util.AdminUtil;
+import com.util.CrowFundingUtil;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.nio.channels.ReadPendingException;
 
 /**
  * @author qiu
@@ -21,9 +27,43 @@ import java.io.PrintWriter;
  *  基于注解的异常处理类
  */
 @ControllerAdvice //表示当前类是一个处理异常的类
-public class ExceptionResolver {
+public class ExceptionResolver{
 
-    //todo 具体异常
+    /**
+     * 未登录访问主页异常
+     * @param accessForbiddenException
+     * @param request
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @ExceptionHandler(value = AccessForbiddenException.class)
+    public ModelAndView resloveAccessForbiddenException(AccessForbiddenException accessForbiddenException,
+                                                        HttpServletRequest request,
+                                                        HttpServletResponse response) throws IOException {
+
+        String  viewName = "admin-login";
+
+        return commonExceptionResolver(accessForbiddenException,request,response,viewName);
+    }
+
+    /**
+     * 管理员登录异常
+     * @param loginFailedException
+     * @param request
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @ExceptionHandler(value = LoginFailedException.class)
+    public ModelAndView resloveLoginException(LoginFailedException loginFailedException,
+                                              HttpServletRequest request,
+                                              HttpServletResponse response)throws IOException{
+
+        String viewName = "admin-login";
+
+        return commonExceptionResolver(loginFailedException,request, response,viewName);
+    }
 
     /**
      * 异常处理的核心方法，具体异常处理调用该方法即可
@@ -39,7 +79,7 @@ public class ExceptionResolver {
                                                  HttpServletResponse response,
                                                  String viewName) throws IOException {
         // 1.判断是当前请求是普通请求还是Ajax请求（普通请求需要返回页面，Ajax请求只需要返回jason）
-        boolean judgeAjaxRequest = AdminUtil.judgeAjaxRequest(request);
+        boolean judgeAjaxRequest = CrowFundingUtil.judgeAjaxRequest(request);
         // 2.如果是Ajax请求
         if(judgeAjaxRequest){
             // 3.获取错误信息
@@ -62,7 +102,7 @@ public class ExceptionResolver {
         // 9.将Exception存入对象
         modelAndView.addObject("Exception",exception);
         // 10.设置目标视图名称
-        modelAndView.setViewName("viewName");
+        modelAndView.setViewName(viewName);
         // 11.返回modelAndView对象
         return modelAndView;
     }

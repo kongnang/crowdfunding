@@ -8,4 +8,6 @@ import com.admin.entity.Admin;
  */
 public interface AdminService {
     Admin selectById(Integer id);
+
+    Admin selectByAdminAccAndPwd(String adminAccount,String adminPassword);
 }
