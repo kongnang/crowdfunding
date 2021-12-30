@@ -682,8 +682,7 @@ public static boolean judgeAjaxRequest(HttpServletRequest request){
     String accept = request.getHeader("Accept");
     String xRequestWith = request.getHeader("X-Request-With");
 
-    return((accept != null && accept == "application/json")
-           ||
+    return((accept != null && accept == "application/json")||
            (xRequestWith != null && xRequestWith == "XMLHttpRequest"));
 
 }
@@ -748,7 +747,271 @@ public class ExceptionResolver {
 }
 ```
 
+## 2 管理员登录功能
 
+<img src="../img/admin-008.png" style="zoom:50%;" />
 
+### 2.1 实现流程
 
+![](../img/admin-009.png)
 
+### 2.2 md5加密
+
+```java
+/**
+* md5加密
+* @param source
+* @return
+*/
+public static String encrypt(String source){
+    // 1.判断传入的字符串是否有效
+    if(source == null || source.length() == 0){
+        throw new LoginFailedException(CrowFundingConstant.MESSAGE_STRING_INVALIDATE);
+    }
+
+    try {
+        String algorithm = "md5";
+        // 2.获取 MessageDigest 对象
+        MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
+        // 3.获得明文字符串对应的字节数组
+        byte[] bytes = source.getBytes();
+        // 4.使用字节数组进行加密
+        byte[] digest = messageDigest.digest(bytes);
+        // 5.字节数组转换为十六进制再转化成字符串
+        BigInteger bigInteger = new BigInteger(1, digest);
+        String cryptograph = bigInteger.toString(16).toUpperCase();
+
+        return cryptograph;
+    } catch (NoSuchAlgorithmException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+```
+
+### 2.3 登录异常类
+
+自定义异常类
+
+```java
+public class LoginFailedException extends RuntimeException{
+    static final long serialVersionUID = 1L;
+
+    public LoginFailedException() {
+        super();
+    }
+
+    public LoginFailedException(String message) {
+        super(message);
+    }
+
+    public LoginFailedException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public LoginFailedException(Throwable cause) {
+        super(cause);
+    }
+
+    protected LoginFailedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+}
+```
+
+### 2.4 登录异常处理
+
+在异常处理类中添加处理登录异常的处理方法
+
+```java
+/**
+* 管理员登录异常
+* @param loginFailedException
+* @param request
+* @param response
+* @return
+* @throws IOException
+*/
+@ExceptionHandler(value = LoginFailedException.class)
+public ModelAndView resloveLoginException(LoginFailedException loginFailedException,
+                                          HttpServletRequest request,
+                                          HttpServletResponse response)throws IOException{
+
+    String viewName = "admin-login";
+
+    return commonExceptionResolver(loginFailedException,request, response,viewName);
+}
+```
+
+### 2.5 管理员登录界面
+
+```java
+/**
+* 管理员登录界面
+* @return
+*/
+@RequestMapping(value = "/login",method = RequestMethod.GET)
+public String adminLoginPage(){
+    return "admin-login";
+}
+
+/**
+* 管理员提交账号密码，之后跳转到主页面
+* @param adminAcc
+* @param adminPwd
+* @param session
+* @return
+*/
+@RequestMapping(value = "/login",method = RequestMethod.POST)
+public String adminLogin(@RequestParam("adminAcc")String adminAcc,
+                         @RequestParam("adminPwd")String adminPwd,
+                         HttpSession session){
+    // 传入账号密码与数据库进行对比
+    Admin admin = adminService.selectByAdminAccAndPwd(adminAcc, adminPwd);
+    // 将管理员信息放入session域中
+    session.setAttribute(CrowFundingConstant.ADAMIN_LOGIN_NAME,admin);
+
+    // TODO 将sout换成logger.info
+    System.out.println(admin);
+
+    return "redirect:/main";
+}
+```
+
+### 2.6 数据库查询管理员信息
+
+```java
+/**
+* 将管理员输入的密码进行md5加密后与数据库中的密文对比，若相同则返回该管理员对象
+* @param adminAccount
+* @param adminPassword
+* @return
+*/
+@Override
+public Admin selectByAdminAccAndPwd(String adminAccount, String adminPassword) {
+    // 将明文进行加密
+    String encrypt = CrowFundingUtil.encrypt(adminPassword);
+    // 将账号和密文与数据库中的管理员账号对比
+    Admin admin = adminMapper.selectByAdminAccAndPwd(adminAccount, encrypt);
+
+    if(admin == null){
+        throw new LoginFailedException(CrowFundingConstant.MESSAGE_LOGIN_FAILED);
+    }
+
+    return admin;
+}
+```
+
+### 2.7 退出登录
+
+```java
+/**
+* 退出登录，重定向至管理员登录页面
+* @param session
+* @return
+*/
+@RequestMapping(value = "/logout")
+public String adminLogOut(HttpSession session){
+    // 强制session失效
+    session.invalidate();
+
+    return "redirect:/login";
+}
+```
+
+### 2.8 登录状态检测
+
+拦截未登录用户
+
+拦截器类：
+
+```java
+public class LoginInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        // 获取Session域中的对象
+        HttpSession session = request.getSession();
+        Admin admin = (Admin) session.getAttribute(CrowFundingConstant.ADAMIN_LOGIN_NAME);
+
+        // 若Session域中取得的对象为null，抛出登录异常
+        if(admin == null){
+            throw new LoginFailedException(CrowFundingConstant.MESSAGE_ACCESS_FORBIDEN);
+        }
+
+        return true;
+    }
+}
+```
+
+配置拦截器：
+
+```xml
+<mvc:interceptors>
+    <mvc:interceptor>
+        <!-- 拦截多层路径-->
+        <mvc:mapping path="/**"/>
+        <!-- 不拦截的路径-->
+        <mvc:exclude-mapping path="/login"/>
+        <mvc:exclude-mapping path="/logout"/>
+        <!-- 配置拦截器类-->
+        <bean class="com.admin.interceptor.LoginInterceptor"/>
+    </mvc:interceptor>
+</mvc:interceptors>
+```
+
+### 2.9 未登录异常类
+
+自定义异常
+
+```java
+public class AccessForbiddenException extends RuntimeException{
+    public AccessForbiddenException() {
+        super();
+    }
+
+    public AccessForbiddenException(String message) {
+        super(message);
+    }
+
+    public AccessForbiddenException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public AccessForbiddenException(Throwable cause) {
+        super(cause);
+    }
+
+    protected AccessForbiddenException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+}
+```
+
+### 2.10 未登录异常处理
+
+```java
+/**
+* 未登录访问主页异常
+* @param accessForbiddenException
+* @param request
+* @param response
+* @return
+* @throws IOException
+*/
+@ExceptionHandler(value = AccessForbiddenException.class)
+public ModelAndView resloveAccessForbiddenException(AccessForbiddenException accessForbiddenException,
+                                                    HttpServletRequest request,
+                                                    HttpServletResponse response) throws IOException {
+
+    String  viewName = "admin-login";
+
+    return commonExceptionResolver(accessForbiddenException,request,response,viewName);
+}
+```
+
+### 2.11 注意
+
+​	本项目中由于crowfunding-admin模块和crowfunding-util没有共同的父模块，所有当启动Tomcat服务器后找不到crowfunding-util模块中的类，此时报错：`NoClassDefFoundException`，`ClassNotFoundException`。
+
+​	解决方式：在当前工程目录下的`out\artifacts\crowfunding_admin_war_exploded\WEB-INF\classes\com`下添加com.util包下的所有编译文件。或者将当前工程作为crowfunding-admin和crowfunding-util的父模块。
