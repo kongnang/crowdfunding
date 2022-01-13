@@ -22,6 +22,25 @@
         <property name="dataSource" ref="dataSource"/>
         <!--指定映射文件位置-->
         <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+
+        <!-- 配置Mybatis分页插件-->
+        <property name="plugins">
+            <!-- plugins是Interceptor[]，所以使用array-->
+           <array>
+               <!-- 配置pagehelper-->
+               <bean class="com.github.pagehelper.PageInterceptor">
+                   <!-- 配置相关属性-->
+                   <property name="properties">
+                        <value>
+                            <!-- 配置数据库方言-->
+                            helperDialect=mysql
+                            <!-- 配置代码合理化修正 修正不合理页码-->
+                            reasonable=true
+                        </value>
+                   </property>
+               </bean>
+           </array>
+        </property>
     </bean>
 
     <!--配置MapperScannerConfigurer-->
@@ -30,4 +49,6 @@
         <property name="basePackage" value="com.admin.mapper"/>
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
+
+<!--    <bean id="adminService" class="com.admin.service.impl.AdminServiceImpl"></bean>-->
 </beans>

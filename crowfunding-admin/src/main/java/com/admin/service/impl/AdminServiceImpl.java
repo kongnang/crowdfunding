@@ -4,12 +4,20 @@ import com.admin.entity.Admin;
 import com.admin.mapper.AdminMapper;
 import com.admin.service.AdminService;
 import com.constant.CrowFundingConstant;
+import com.exception.LoginAcctAlreadyInUseException;
 import com.exception.LoginFailedException;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.util.CrowFundingUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.NonTransientDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.FailedLoginException;
+import java.util.List;
 
 /**
  * @author qiu
@@ -21,9 +29,64 @@ public class AdminServiceImpl implements AdminService {
     private AdminMapper adminMapper;
 
     @Override
-    public Admin selectById(Integer id) {
-        Admin admin = adminMapper.selectById(id);
-        return admin;
+    public Boolean deleteAdminById(Integer id) {
+        Boolean res = false;
+
+        try{
+            res = adminMapper.deleteAdminById(id);
+        }catch (Exception e){
+            throw e;
+        }
+
+        return res;
+    }
+
+    /**
+     *
+     * @param admin
+     * @return 返回添加结果
+     */
+    @Override
+    public Boolean insertAdmin(Admin admin) {
+        // 加密管理员密码
+        String encrypt = CrowFundingUtil.encrypt(admin.getUserPswd());
+
+        admin.setUserPswd(encrypt);
+
+        Boolean res = false;
+        // 保存管理员对象到数据库中，如果用户名被占用抛出异常
+        try{
+            res = adminMapper.insertAdmin(admin);
+        }catch (Exception e){
+            // 若当前异常类是DuplicateKeyException的实例对象，说明账号名重复
+            if(e instanceof DuplicateKeyException){
+                throw new LoginAcctAlreadyInUseException(CrowFundingConstant.MESSAGE_LOGIN_ACCOUNT_ALREADY_IN_USE);
+            }
+            // 为了不掩盖错误仍然抛出当前异常
+            throw e;
+        }finally {
+            return res;
+        }
+    }
+
+    /**
+     * 根据关键字查询并分页，将查询结果封装为PageInfo对象
+     * @param keyword
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public PageInfo<Admin> selectByKeyWord(String keyword, Integer pageNum, Integer pageSize) {
+        // 1.开启分页插件
+        PageHelper.startPage(pageNum,pageSize);
+        // 2.根据关键字进行查询
+        List<Admin> admins = adminMapper.selectByKeyWord(keyword);
+
+        // 3.将查询结果封装到PageInfo中
+        PageInfo<Admin> pageInfo = new PageInfo(admins);
+
+        return pageInfo;
     }
 
     /**
@@ -45,4 +108,11 @@ public class AdminServiceImpl implements AdminService {
 
         return admin;
     }
+
+    @Override
+    public Admin selectById(Integer id) {
+        Admin admin = adminMapper.selectById(id);
+        return admin;
+    }
+
 }

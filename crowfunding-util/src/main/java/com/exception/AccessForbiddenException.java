@@ -5,6 +5,8 @@ package com.exception;
  * @create 2021-12-29 20:07
  */
 public class AccessForbiddenException extends RuntimeException{
+    static final long serialVersionUID = 1L;
+
     public AccessForbiddenException() {
         super();
     }

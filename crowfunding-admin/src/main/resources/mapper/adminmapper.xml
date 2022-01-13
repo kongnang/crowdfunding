@@ -24,4 +24,17 @@
     select * from admin where login_acct = #{login_acct} and user_pswd = #{user_pswd}
   </select>
 
+  <select id="selectByKeyWord" resultMap="BaseResultMap">
+    select * from admin where login_acct like concat('%',#{keyword},'%')
+                           or user_name like concat('%',#{keyword},'%')
+                           or email like concat('%',#{keyword},'%')
+  </select>
+
+  <insert id="insertAdmin" parameterType="com.admin.entity.Admin">
+    insert into admin values (#{id} ,#{loginAcct} ,#{userPswd} ,#{userName} ,#{email} ,#{createTime} )
+  </insert>
+
+  <delete id="deleteAdminById" parameterType="Integer">
+    delete from admin where id = #{id}
+  </delete>
 </mapper>

@@ -19,6 +19,8 @@ CREATE TABLE admin(
 	email VARCHAR(255) NOT NULL COMMENT '邮件地址',
 	create_time date COMMENT '创建时间'
 );
+
+ALTER TABLE `admin` ADD UNIQUE INDEX (`login_acct`);
 ```
 
 ### 1.3 MyBatis 逆向工程
@@ -847,15 +849,6 @@ public ModelAndView resloveLoginException(LoginFailedException loginFailedExcept
 
 ```java
 /**
-* 管理员登录界面
-* @return
-*/
-@RequestMapping(value = "/login",method = RequestMethod.GET)
-public String adminLoginPage(){
-    return "admin-login";
-}
-
-/**
 * 管理员提交账号密码，之后跳转到主页面
 * @param adminAcc
 * @param adminPwd
@@ -876,6 +869,16 @@ public String adminLogin(@RequestParam("adminAcc")String adminAcc,
 
     return "redirect:/main";
 }
+
+/**
+* 管理员登录界面
+* @return
+*/
+@RequestMapping(value = "/login",method = RequestMethod.GET)
+public String adminLoginPage(){
+    return "admin-login";
+}
+
 ```
 
 ### 2.6 数据库查询管理员信息

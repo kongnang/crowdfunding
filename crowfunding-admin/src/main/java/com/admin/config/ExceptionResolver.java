@@ -2,9 +2,11 @@ package com.admin.config;
 
 import com.admin.service.AdminService;
 import com.exception.AccessForbiddenException;
+import com.exception.LoginAcctAlreadyInUseException;
 import com.exception.LoginFailedException;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -28,6 +30,15 @@ import java.nio.channels.ReadPendingException;
  */
 @ControllerAdvice //表示当前类是一个处理异常的类
 public class ExceptionResolver{
+
+    @ExceptionHandler(value = LoginAcctAlreadyInUseException.class)
+    public ModelAndView resloveLoginAcctAlreadyInUseException(LoginFailedException loginFailedException,
+                                                              HttpServletRequest request,
+                                                              HttpServletResponse response) throws IOException {
+        String viewName = "admin-add";
+
+        return commonExceptionResolver(loginFailedException,request,response,viewName);
+    }
 
     /**
      * 未登录访问主页异常
@@ -100,7 +111,7 @@ public class ExceptionResolver{
         // 8.创建ModelAndView对象
         ModelAndView modelAndView = new ModelAndView();
         // 9.将Exception存入对象
-        modelAndView.addObject("Exception",exception);
+        modelAndView.addObject("exception",exception);
         // 10.设置目标视图名称
         modelAndView.setViewName(viewName);
         // 11.返回modelAndView对象

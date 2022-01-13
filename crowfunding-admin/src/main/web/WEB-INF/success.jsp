@@ -12,5 +12,6 @@
 </head>
 <body>
 <h1>Test Success</h1>
+<%--<p>name=${sessionScope.name}</p>--%>
 </body>
 </html>

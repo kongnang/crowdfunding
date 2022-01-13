@@ -2,7 +2,7 @@ package com.admin.interceptor;
 
 import com.admin.entity.Admin;
 import com.constant.CrowFundingConstant;
-import com.exception.LoginFailedException;
+import com.exception.AccessForbiddenException;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,11 +21,12 @@ public class LoginInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession();
         Admin admin = (Admin) session.getAttribute(CrowFundingConstant.ADAMIN_LOGIN_NAME);
 
-        // 若Session域中取得的对象为null，抛出登录异常
+        // 若session域中取得的对象为null，抛出登录异常
         if(admin == null){
-            throw new LoginFailedException(CrowFundingConstant.MESSAGE_ACCESS_FORBIDEN);
+            throw new AccessForbiddenException(CrowFundingConstant.MESSAGE_ACCESS_FORBIDEN);
         }
 
         return true;
     }
+
 }

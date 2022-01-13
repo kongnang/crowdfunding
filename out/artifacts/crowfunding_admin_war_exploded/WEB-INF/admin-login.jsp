@@ -5,7 +5,7 @@
   Time: 11:47
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -35,7 +35,7 @@
 <div class="container">
     <form action="http://localhost:8080/admin/login" method="post" class="form-signin" role="form">
         <h2 class="form-signin-heading"><i class="glyphicon glyphicon-log-in"></i> 管理员登录</h2>
-        <p>${requestScope.exception.message}</p>
+        <p>${exception}</p>
         <div class="form-group has-success has-feedback">
             <input type="text" name="adminAcc" class="form-control" id="inputSuccess4" placeholder="请输入登录账号" autofocus>
             <span class="glyphicon glyphicon-user form-control-feedback"></span>
@@ -44,7 +44,7 @@
             <input type="text" name="adminPwd" class="form-control" id="inputSuccess4" placeholder="请输入登录密码" style="margin-top:10px;">
             <span class="glyphicon glyphicon-lock form-control-feedback"></span>
         </div>
-        <input type="submit" class="btn btn-lg btn-success btn-block"></input>
+        <button type="submit" class="btn btn-lg btn-success btn-block">登录</button>
     </form>
 </div>
 </body>

@@ -2,6 +2,7 @@ package com.util;
 
 
 import com.constant.CrowFundingConstant;
+import com.exception.LoginFailedException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
@@ -37,7 +38,7 @@ public class CrowFundingUtil {
     public static String encrypt(String source){
         // 1.判断传入的字符串是否有效
         if(source == null || source.length() == 0){
-            throw new RuntimeException(CrowFundingConstant.MESSAGE_STRING_INVALIDATE);
+            throw new LoginFailedException(CrowFundingConstant.MESSAGE_STRING_INVALIDATE);
         }
 
         try {
