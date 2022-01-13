@@ -15,4 +15,6 @@ public interface AdminMapper {
     Boolean insertAdmin(Admin admin);
 
     Boolean deleteAdminById(Integer id);
+
+    Boolean updateAdminById(Admin admin);
 }

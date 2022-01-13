@@ -29,6 +29,62 @@ public class AdminController{
     @Autowired
     private  AdminService adminService;
 
+    /**
+     *
+     * @param loginAcct
+     * @param userName
+     * @param email
+     * @param session 通过session域获得当前修改的管理员对象
+     * @param request 保存sql执行结果
+     * @return
+     */
+    @RequestMapping(value = "/update" , method = RequestMethod.POST)
+    public String updateAdmin(@RequestParam("loginAcct")String loginAcct,
+                              @RequestParam("userName")String userName,
+                              @RequestParam("email")String email,
+                              HttpSession session,
+                              HttpServletRequest request){
+
+        Admin admin = (Admin) session.getAttribute("updateAdmin");
+        admin.setLoginAcct(loginAcct);
+        admin.setUserName(userName);
+        admin.setEmail(email);
+
+        Boolean res = adminService.updateAdminById(admin);
+        if(res == true){
+            request.setAttribute("res","修改成功");
+        }else{
+            request.setAttribute("res","修改失败");
+        }
+
+        return "redirect:/usermaintain";
+    }
+
+    /**
+     * 跳转到管理员修改页面
+     * @param session
+     * @param id 由查询页面中的管理员信息获得
+     * @return
+     */
+    @RequestMapping(value = "/update")
+    public String updatePage(@RequestParam("id")Integer id,
+                             HttpSession session){
+        // 查询指定id的管理员信息，并放入请求域中以便显示在表单中
+        Admin admin = adminService.selectById(id);
+        session.setAttribute("updateAdmin",admin);
+
+        return "admin-update";
+    }
+
+    /**
+     * 根据管理员id删除指定管理员
+     * @param request
+     * @param id 由查询页面中的管理员信息获得
+     * @param pageNum
+     * @return 重定向至查询页面
+     *
+     * 最好做逻辑删除或者验证是否删除当前正在登录的账户，因为管理员有可能把自己的账号删除
+     */
     @RequestMapping(value = "/delete/{id}/{pageNum}")
     public String deleteAdmin(HttpServletRequest request,
                               @PathVariable("id")Integer id,
@@ -46,12 +102,12 @@ public class AdminController{
     }
 
     /**
-     *
-     * @param request
+     * 添加管理员
+     * @param request 保存sql执行结果
      * @param loginAcct
      * @param userName
      * @param email
-     * @return 添加管理员
+     * @return
      */
     @RequestMapping(value = "/add" ,method = RequestMethod.POST)
     public String addAdmin(HttpServletRequest request,

@@ -88,12 +88,13 @@
                                                 <button type="button" class="btn btn-success btn-xs">
                                                     <i class=" glyphicon glyphicon-check"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-primary btn-xs">
+                                                <a href="http://localhost:8080/admin/update?id=${admin.id}" class="btn btn-primary btn-xs">
                                                     <i class=" glyphicon glyphicon-pencil"></i>
-                                                </button>
+                                                </a>
                                                 <a href="http://localhost:8080/admin/delete/${admin.id}/${adminPageInfo.pageNum}" class="btn btn-danger btn-xs">
                                                     <i class=" glyphicon glyphicon-remove"></i>
                                                 </a>
+                                                <p>${requestScope.res}</p>
                                             </td>
                                         </tr>
                                     </c:forEach>

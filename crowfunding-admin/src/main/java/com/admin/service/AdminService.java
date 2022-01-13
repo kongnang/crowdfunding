@@ -19,4 +19,6 @@ public interface AdminService {
     Boolean insertAdmin(Admin admin);
 
     Boolean deleteAdminById(Integer id);
+
+    Boolean updateAdminById(Admin admin);
 }

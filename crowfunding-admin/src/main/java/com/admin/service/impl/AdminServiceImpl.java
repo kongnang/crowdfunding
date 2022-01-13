@@ -28,6 +28,29 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private AdminMapper adminMapper;
 
+    /**
+     * 修改管理员信息
+     * @param admin
+     * @return 返回影响的行数
+     */
+    @Override
+    public Boolean updateAdminById(Admin admin) {
+        Boolean res = false;
+
+        try{
+            res = adminMapper.updateAdminById(admin);
+        }catch (Exception e){
+            throw e;
+        }finally {
+            return res;
+        }
+    }
+
+    /**
+     * 通过id删除指定管理员
+     * @param id
+     * @return 返回影响的行数
+     */
     @Override
     public Boolean deleteAdminById(Integer id) {
         Boolean res = false;
@@ -36,15 +59,15 @@ public class AdminServiceImpl implements AdminService {
             res = adminMapper.deleteAdminById(id);
         }catch (Exception e){
             throw e;
+        }finally {
+            return res;
         }
-
-        return res;
     }
 
     /**
      *
      * @param admin
-     * @return 返回添加结果
+     * @return 返回影响的行数
      */
     @Override
     public Boolean insertAdmin(Admin admin) {
