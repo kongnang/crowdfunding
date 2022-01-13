@@ -37,4 +37,10 @@
   <delete id="deleteAdminById" parameterType="Integer">
     delete from admin where id = #{id}
   </delete>
+
+  <update id="updateAdminById" parameterType="com.admin.entity.Admin">
+    update admin set login_acct=#{loginAcct},
+                     user_name=#{userName},
+                     email=#{email} where id=#{id}
+  </update>
 </mapper>

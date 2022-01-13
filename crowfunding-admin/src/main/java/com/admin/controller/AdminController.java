@@ -30,7 +30,7 @@ public class AdminController{
     private  AdminService adminService;
 
     /**
-     *
+     * 实现修改功能
      * @param loginAcct
      * @param userName
      * @param email

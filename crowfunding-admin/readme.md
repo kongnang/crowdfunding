@@ -1018,3 +1018,280 @@ public ModelAndView resloveAccessForbiddenException(AccessForbiddenException acc
 ​	本项目中由于crowfunding-admin模块和crowfunding-util没有共同的父模块，所有当启动Tomcat服务器后找不到crowfunding-util模块中的类，此时报错：`NoClassDefFoundException`，`ClassNotFoundException`。
 
 ​	解决方式：在当前工程目录下的`out\artifacts\crowfunding_admin_war_exploded\WEB-INF\classes\com`下添加com.util包下的所有编译文件。或者将当前工程作为crowfunding-admin和crowfunding-util的父模块。
+
+## 3 管理员管理功能
+
+### 3.1 分页显示信息
+
+以分页的形式显示管理员信息，并可以通过关键字来查询，当不知道关键字时，默认查询所有。
+
+#### 3.1.1 sql语句
+
+```xml
+<select id="selectByKeyWord" resultMap="BaseResultMap">
+    select * from admin where login_acct like concat('%',#{keyword},'%')
+    						or user_name like concat('%',#{keyword},'%')
+    						or email like concat('%',#{keyword},'%')
+  <!--keyword有值：like %kongnang%
+	  keyword无值：like %%
+	-->
+</select>
+```
+
+#### 3.1.2 AdminServiceImpl实现
+
+```java
+@Override
+public PageInfo<Admin> selectByKeyWord(String keyword, Integer pageNum, Integer pageSize) {
+    // 1.开启分页插件
+    PageHelper.startPage(pageNum,pageSize);
+    // 2.根据关键字进行查询
+    List<Admin> admins = adminMapper.selectByKeyWord(keyword);
+
+    // 3.将查询结果封装到PageInfo中
+    PageInfo<Admin> pageInfo = new PageInfo(admins);
+
+    return pageInfo;
+}
+```
+
+#### 3.1.3 AdminController实现
+
+```java
+@RequestMapping(value = "/usermaintain")
+public String adminInfoResult(@RequestParam(value ="keyword",defaultValue = "")String keyword,
+                              @RequestParam(value = "pageNum",defaultValue = "1")Integer pageNum,
+                              @RequestParam(value = "pageSize",defaultValue = "5")Integer pageSize,
+                              ModelMap modelMap){
+
+    // 查询数据
+    PageInfo<Admin> pageInfo = adminService.selectByKeyWord(keyword, pageNum, pageSize);
+
+    // 将查询结果存入ModelMap
+    // 使用ModelMap获取管理员信息显示在jsp页面
+    modelMap.addAttribute(CrowFundingConstant.USER_MAINTAIN_PAGE,pageInfo);
+
+    return "admin-maintain";
+}
+```
+
+### 3.2 添加管理员
+
+#### 3.2.1 sql语句
+
+```xml
+<insert id="insertAdmin" parameterType="com.admin.entity.Admin">
+    insert into admin values (#{id} ,#{loginAcct} ,#{userPswd} ,#{userName} ,#{email} ,#{createTime} )
+</insert>
+```
+
+#### 3.2.2 账号重复异常处理
+
+```java
+@ExceptionHandler(value = LoginAcctAlreadyInUseException.class)
+public ModelAndView resloveLoginAcctAlreadyInUseException(LoginFailedException loginFailedException,
+                                                          HttpServletRequest request,
+                                                          HttpServletResponse response) throws IOException {
+    String viewName = "admin-add";
+
+    return commonExceptionResolver(loginFailedException,request,response,viewName);
+}
+```
+
+#### 3.2.3 ServiceImpl实现
+
+```java
+@Override
+public Boolean insertAdmin(Admin admin) {
+    // 加密管理员密码
+    String encrypt = CrowFundingUtil.encrypt(admin.getUserPswd());
+
+    admin.setUserPswd(encrypt);
+
+    Boolean res = false;
+    // 保存管理员对象到数据库中，如果用户名被占用抛出异常
+    try{
+        res = adminMapper.insertAdmin(admin);
+    }catch (Exception e){
+        // 若当前异常类是DuplicateKeyException的实例对象，说明账号名重复
+        if(e instanceof DuplicateKeyException){
+            throw new LoginAcctAlreadyInUseException(CrowFundingConstant.MESSAGE_LOGIN_ACCOUNT_ALREADY_IN_USE);
+        }
+        // 为了不掩盖错误仍然抛出当前异常
+        throw e;
+    }finally {
+        return res;
+    }
+}
+```
+
+#### 3.2.4 Controller实现
+
+```java
+/**
+     * 跳转至添加管理员页面
+     * @return
+     */
+@RequestMapping(value = "/add")
+public String addAdminPage(){
+    return "admin-add";
+}
+
+/**
+     * 添加管理员
+     * @param request 保存sql执行结果
+     * @param loginAcct
+     * @param userName
+     * @param email
+     * @return
+     */
+@RequestMapping(value = "/add" ,method = RequestMethod.POST)
+public String addAdmin(HttpServletRequest request,
+                       @RequestParam("loginAcct")String loginAcct,
+                       @RequestParam("userName")String userName,
+                       @RequestParam("email")String email){
+
+    Date date = new Date();
+    Admin admin =new Admin(null,loginAcct,"123",userName,email,date);
+
+    // 将保存的对象存入数据库
+    Boolean res = adminService.insertAdmin(admin);
+
+    // 将操作结果放入域中
+    if(res == true){
+        request.setAttribute("res","添加成功！");
+    }else{
+        request.setAttribute("res","添加失败！");
+    }
+
+    return "admin-add";
+}
+```
+
+### 3.3 删除管理员
+
+#### 3.3.1 sql语句
+
+```xml
+<delete id="deleteAdminById" parameterType="Integer">
+    delete from admin where id = #{id}
+</delete>
+```
+
+#### 3.3.2 ServiceImpl实现
+
+```java
+@Override
+public Boolean deleteAdminById(Integer id) {
+    Boolean res = false;
+
+    try{
+        res = adminMapper.deleteAdminById(id);
+    }catch (Exception e){
+        throw e;
+    }finally {
+        return res;
+    }
+}
+```
+
+#### 3.3.3 Controller实现
+
+```java
+@RequestMapping(value = "/delete/{id}/{pageNum}")
+public String deleteAdmin(HttpServletRequest request,
+                          @PathVariable("id")Integer id,
+                          @PathVariable("pageNum")Integer pageNum){
+
+    Boolean res = adminService.deleteAdminById(id);
+
+    if(res == true){
+        request.setAttribute("res","删除成功！");
+    }else{
+        request.setAttribute("res","删除失败！");
+    }
+
+    return "redirect:/usermaintain";
+}
+```
+
+### 3.4 更新管理员
+
+#### 3.4.1 sql语句
+
+```xml	
+<update id="updateAdminById" parameterType="com.admin.entity.Admin">
+    update admin set login_acct=#{loginAcct},
+    				user_name=#{userName},
+    				email=#{email} where id=#{id}
+</update>
+```
+
+#### 3.4.2 ServiceImpl实现
+
+```java
+@Override
+public Boolean updateAdminById(Admin admin) {
+    Boolean res = false;
+
+    try{
+        res = adminMapper.updateAdminById(admin);
+    }catch (Exception e){
+        throw e;
+    }finally {
+        return res;
+    }
+}
+```
+
+#### 3.4.3 Controller实现
+
+```java
+/**
+     * 跳转到管理员修改页面
+     * @param session 把取得的管理员信息放在session中方便后面使用
+     * @param id 由查询页面中的管理员信息获得
+     * @return
+     */
+@RequestMapping(value = "/update")
+public String updatePage(@RequestParam("id")Integer id,
+                         HttpSession session){
+    // 查询指定id的管理员信息，并放入请求域中以便显示在表单中
+    Admin admin = adminService.selectById(id);
+    session.setAttribute("updateAdmin",admin);
+
+    return "admin-update";
+}
+
+/**
+     * 实现修改功能
+     * @param loginAcct
+     * @param userName
+     * @param email
+     * @param session 通过session域获得当前修改的管理员对象
+     * @param request 保存sql执行结果
+     * @return
+     */
+@RequestMapping(value = "/update" , method = RequestMethod.POST)
+public String updateAdmin(@RequestParam("loginAcct")String loginAcct,
+                          @RequestParam("userName")String userName,
+                          @RequestParam("email")String email,
+                          HttpSession session,
+                          HttpServletRequest request){
+
+    Admin admin = (Admin) session.getAttribute("updateAdmin");
+    admin.setLoginAcct(loginAcct);
+    admin.setUserName(userName);
+    admin.setEmail(email);
+
+    Boolean res = adminService.updateAdminById(admin);
+    if(res == true){
+        request.setAttribute("res","修改成功");
+    }else{
+        request.setAttribute("res","修改失败");
+    }
+
+    return "redirect:/usermaintain";
+}
+```
+

@@ -65,7 +65,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     /**
-     *
+     * 插入管理员
      * @param admin
      * @return 返回影响的行数
      */

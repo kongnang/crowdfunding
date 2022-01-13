@@ -31,6 +31,14 @@ import java.nio.channels.ReadPendingException;
 @ControllerAdvice //表示当前类是一个处理异常的类
 public class ExceptionResolver{
 
+    /**
+     * 账户重复使用异常
+     * @param loginFailedException
+     * @param request
+     * @param response
+     * @return
+     * @throws IOException
+     */
     @ExceptionHandler(value = LoginAcctAlreadyInUseException.class)
     public ModelAndView resloveLoginAcctAlreadyInUseException(LoginFailedException loginFailedException,
                                                               HttpServletRequest request,
