@@ -4,17 +4,17 @@
 <generatorConfiguration>
     <context id="simple" targetRuntime="MyBatis3Simple">
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/exercise?serverTimezone=UTC"
+                        connectionURL="jdbc:mysql://localhost:3306/crowfunding?serverTimezone=UTC"
                         userId="root"
                         password="bruce123"/>
 
         <!--实体类-->
         <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowfunding-admin/src/main/java"/>
         <!--映射文件-->
-        <sqlMapGenerator targetPackage="/resources" targetProject="./crowfunding-admin/src/main"/>
+        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowfunding-admin/src/main"/>
         <!--接口类-->
         <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowfunding-admin/src/main/java"/>
 
-        <table tableName="admin" />
+        <table tableName="role" />
     </context>
 </generatorConfiguration>
