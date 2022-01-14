@@ -16,14 +16,14 @@
         initPagination();
     });
     function initPagination() {
-        var totalRecord = ${requestScope.pageInfo.total};
+        var totalRecord = ${adminPageInfo.total};
         var properties = {
             num_edge_entries: 3,
             num_display_entries: 5,
             callback: pageSelectCallback,
-            current_page: ${requestScope.pageInfo.pageNum-1},
+            current_page: ${adminPageInfo.pageNum-1},
             next_text: "下一页 下一页 ",
-            items_per_page:${requestScope.pageInfo.pageSize}
+            items_per_page:${adminPageInfo.pageSize}
         };
         $("#Pagination").pagination(totalRecord, properties);
     }
@@ -61,14 +61,14 @@
                     <div class="table-responsive">
                         <table class="table  table-bordered">
                             <thead>
-                            <tr>
-                                <th width="30">#</th>
-                                <th width="30"><input type="checkbox"></th>
-                                <th>账号</th>
-                                <th>名称</th>
-                                <th>邮箱地址</th>
-                                <th width="100">操作</th>
-                            </tr>
+                                <tr>
+                                    <th width="30">#</th>
+                                    <th width="30"><input type="checkbox"></th>
+                                    <th>账号</th>
+                                    <th>名称</th>
+                                    <th>邮箱地址</th>
+                                    <th width="100">操作</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 <c:if test="${empty adminPageInfo.list}">
@@ -101,11 +101,11 @@
                                 </c:if>
                             </tbody>
                             <tfoot>
-                            <tr>
-                                <td colspan="6" align="center">
-                                    <div id="Pagination" class="pagination"><!-- 这里显示分页 --></div>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td colspan="6" align="center">
+                                        <div id="Pagination" class="pagination"><!-- 这里显示分页 --></div>
+                                    </td>
+                                </tr>
                             </tfoot>
                         </table>
                     </div>

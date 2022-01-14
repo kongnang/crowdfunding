@@ -13,4 +13,5 @@ public class CrowFundingConstant {
 
     public static final String ADAMIN_LOGIN_NAME = "admin";
     public static final String USER_MAINTAIN_PAGE = "adminPageInfo";
+    public static final String ROLE_MAINTAIN_PAGE = "rolePageInfo";
 }

@@ -155,12 +155,12 @@ public class AdminController{
                                  ModelMap modelMap){
 
         // 查询数据
-        PageInfo<Admin> pageInfo = adminService.selectByKeyWord(keyword, pageNum, pageSize);
+        PageInfo<Admin> adminpageInfo = adminService.selectByKeyWord(keyword, pageNum, pageSize);
 
         // 将查询结果存入ModelMap
-        modelMap.addAttribute(CrowFundingConstant.USER_MAINTAIN_PAGE,pageInfo);
+        modelMap.addAttribute(CrowFundingConstant.USER_MAINTAIN_PAGE,adminpageInfo);
 
-        return "admin-maintain";
+        return "admin-adminmaintain";
     }
 
     /**
