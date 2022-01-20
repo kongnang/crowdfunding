@@ -11,18 +11,21 @@
 <html lang="zh-CN">
 <%@ include file="include-head.jsp" %>
 <link rel="stylesheet" href="./static/css/pagination.css">
-<script type="text/javascript" src="./static/jquery/jquery.pagination.js">
+<script type="text/javascript" src="./static/jquery/jquery.pagination.js"></script>
+<script type="text/javascript">
     $(function(){
         initPagination();
     });
     function initPagination() {
         var totalRecord = ${adminPageInfo.total};
+
         var properties = {
             num_edge_entries: 3,
             num_display_entries: 5,
             callback: pageSelectCallback,
             current_page: ${adminPageInfo.pageNum-1},
-            next_text: "下一页 下一页 ",
+            prev_text: "prev ",
+            next_text: "next ",
             items_per_page:${adminPageInfo.pageSize}
         };
         $("#Pagination").pagination(totalRecord, properties);

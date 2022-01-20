@@ -11,4 +11,10 @@ import java.util.List;
  */
 public interface RoleService {
     PageInfo<Role> selectByKeyword(String keyword ,Integer pageNum, Integer pageSize);
+
+    int insert(Role role);
+
+    int updateByPrimaryKey(Role role);
+
+    int deleteByIds(List<Integer> ids);
 }

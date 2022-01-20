@@ -160,7 +160,7 @@ public class AdminController{
         // 将查询结果存入ModelMap
         modelMap.addAttribute(CrowFundingConstant.USER_MAINTAIN_PAGE,adminpageInfo);
 
-        return "admin-adminmaintain";
+        return "admin-maintain";
     }
 
     /**

@@ -21,6 +21,39 @@ public class RoleServiceImpl implements RoleService {
     private RoleMapper roleMapper;
 
     /**
+     * 根据id进行批量删除
+     * @param ids
+     * @return
+     */
+    @Override
+    public int deleteByIds(List<Integer> ids) {
+        int deleteRes = roleMapper.deleteByIds(ids);
+        return deleteRes;
+    }
+
+    /**
+     *
+     * @param role
+     * @return
+     */
+    @Override
+    public int updateByPrimaryKey(Role role) {
+        int updateRes = roleMapper.updateByPrimaryKey(role);
+        return updateRes;
+    }
+
+    /**
+     *
+     * @param role
+     * @return
+     */
+    @Override
+    public int insert(Role role) {
+        int insertRes = roleMapper.insert(role);
+        return insertRes;
+    }
+
+    /**
      * 根据关键字查询分页
      * @param keyword
      * @param pageNum

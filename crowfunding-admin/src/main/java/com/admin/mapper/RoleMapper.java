@@ -6,13 +6,15 @@ import java.util.List;
 public interface RoleMapper {
     int deleteByPrimaryKey(Integer id);
 
-    int insert(Role record);
+    int insert(Role role);
 
     Role selectByPrimaryKey(Integer id);
 
     List<Role> selectAll();
 
-    int updateByPrimaryKey(Role record);
+    int updateByPrimaryKey(Role role);
 
     List<Role> selectByKeyword(String keyword);
+
+    int deleteByIds(List<Integer> ids);
 }

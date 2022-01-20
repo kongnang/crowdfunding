@@ -2,13 +2,16 @@ package com.admin.controller;
 
 import com.admin.entity.Role;
 import com.admin.service.RoleService;
-import com.constant.CrowFundingConstant;
 import com.github.pagehelper.PageInfo;
+import com.util.ResultEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * @author qiu
@@ -19,16 +22,67 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
 
-    @RequestMapping(value = "/rolemaintain")
-    public String roleInfo(@RequestParam(value = "keyword",defaultValue = "")String keyword,
-                           @RequestParam(value = "pageNum",defaultValue = "1")Integer pageNum,
-                           @RequestParam(value = "pageSize",defaultValue = "5")Integer pageSize,
-                           ModelMap modelMap){
+    /**
+     * 批量删除、单条删除
+     * @param
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/delete.json")
+    public ResultEntity<String> roleDelete(@RequestBody List<Integer> ids){
+        roleService.deleteByIds(ids);
+        return ResultEntity.successWithoutData();
+    }
+
+    /**
+     * 在模态框中更改角色，使用Ajax请求
+     * @param role
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/update.json")
+    public ResultEntity<String> roleUpdate(Role role){
+        roleService.updateByPrimaryKey(role);
+        return ResultEntity.successWithoutData();
+    }
+
+    /**
+     * 在模态框中插入角色，使用Ajax请求
+     * @param role
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/save.json")
+    public ResultEntity<String> roleSave(Role role){
+        roleService.insert(role);
+
+        return ResultEntity.successWithoutData();
+    }
+
+    /**
+     * 填充角色信息，使用Ajax请求
+     * @param keyword
+     * @param pageNum
+     * @param pageSize
+     * @return RusultEntity封装的Ajax请求的响应
+     */
+    @ResponseBody
+    @RequestMapping(value = "/info.json")
+    public ResultEntity<PageInfo<Role>> roleInfo(@RequestParam(value = "keyword",defaultValue = "")String keyword,
+                                       @RequestParam(value = "pageNum",defaultValue = "1")Integer pageNum,
+                                       @RequestParam(value = "pageSize",defaultValue = "5")Integer pageSize){
 
         PageInfo<Role> rolePageInfo = roleService.selectByKeyword(keyword, pageNum, pageSize);
 
-        modelMap.addAttribute(CrowFundingConstant.ROLE_MAINTAIN_PAGE,rolePageInfo);
+        return ResultEntity.successWithData(rolePageInfo);
+    }
 
-        return "admin-rolemaintain";
+    /**
+     * 角色维护页
+     * @return
+     */
+    @RequestMapping(value = "/role")
+    public String roleMaintainPage(){
+        return "role-maintain";
     }
 }

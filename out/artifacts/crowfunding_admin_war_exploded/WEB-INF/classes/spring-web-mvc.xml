@@ -25,6 +25,7 @@
             <!-- 拦截多层路径-->
             <mvc:mapping path="/**"/>
             <!-- 不拦截的路径-->
+            <mvc:exclude-mapping path="/"/>
             <mvc:exclude-mapping path="/login"/>
             <mvc:exclude-mapping path="/logout"/>
             <!-- 配置拦截器类-->
