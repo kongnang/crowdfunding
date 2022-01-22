@@ -1019,9 +1019,9 @@ public ModelAndView resloveAccessForbiddenException(AccessForbiddenException acc
 
 ​	解决方式：在当前工程目录下的`out\artifacts\crowfunding_admin_war_exploded\WEB-INF\classes\com`下添加com.util包下的所有编译文件。或者将当前工程作为crowfunding-admin和crowfunding-util的父模块。
 
-## 3 管理员管理功能
+## 3 管理员维护功能
 
-### 3.1 分页显示信息
+### 3.1 分页
 
 以分页的形式显示管理员信息，并可以通过关键字来查询，当不知道关键字时，默认查询所有。
 
@@ -1292,6 +1292,135 @@ public String updateAdmin(@RequestParam("loginAcct")String loginAcct,
     }
 
     return "redirect:/usermaintain";
+}
+```
+
+## 4 角色维护功能
+
+此功能接口都使用**.json的方式来进行响应Ajax请求，用响应的数据填充页面。
+
+这里很多功能都是通过js来实现，这里就不放js代码了。
+
+### 4.1 逆向工程
+
+```xml
+<!DOCTYPE generatorConfiguration PUBLIC
+        "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="simple" targetRuntime="MyBatis3Simple">
+        <!--         nullCatalogMeansCurrent=true 解决生成的实体类与数据库表不一样的问题-->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/crowfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
+                        userId="root"
+                        password="bruce123" />
+
+        <!--实体类-->
+        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowfunding-admin/src/main/java"/>
+        <!--映射文件-->
+        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowfunding-admin/src/main"/>
+        <!--接口类-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowfunding-admin/src/main/java"/>
+
+        <table tableName="role" />
+    </context>
+</generatorConfiguration>
+```
+
+```java
+public class RoleGenerator {
+    public static void main(String[] args) {
+        try {
+            List<String> warnings = new ArrayList<String>();
+            boolean overwrite = true;
+            File configFile = new File("./crowfunding-reverse/src/main/resources/generatorConfigRole.xml");
+            ConfigurationParser cp = new ConfigurationParser(warnings);
+            Configuration config = cp.parseConfiguration(configFile);
+            DefaultShellCallback callback = new DefaultShellCallback(overwrite);
+            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, callback, warnings);
+            myBatisGenerator.generate(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### 4.2 分页
+
+```java
+@Override
+public PageInfo<Role> selectByKeyword(String keyword, Integer pageNum, Integer pageSize) {
+    // 开启分页插件
+    PageHelper.startPage(pageNum,pageSize);
+    // 根据关键字查询
+    List<Role> roles = roleMapper.selectByKeyword(keyword);
+
+    // 将结果封装到PageInfo中
+    PageInfo<Role> pageInfo = new PageInfo(roles);
+
+    return pageInfo;
+}
+```
+
+```java
+/**
+     * 填充角色信息，使用Ajax请求
+     * @param keyword
+     * @param pageNum
+     * @param pageSize
+     * @return RusultEntity封装的Ajax请求的响应
+     */
+@ResponseBody
+@RequestMapping(value = "/info.json")
+public ResultEntity<PageInfo<Role>> roleInfo(@RequestParam(value = "keyword",defaultValue = "")String keyword,
+                                             @RequestParam(value = "pageNum",defaultValue = "1")Integer pageNum,
+                                             @RequestParam(value = "pageSize",defaultValue = "5")Integer pageSize){
+
+    PageInfo<Role> rolePageInfo = roleService.selectByKeyword(keyword, pageNum, pageSize);
+
+    return ResultEntity.successWithData(rolePageInfo);
+}
+```
+
+### 4.3 角色增删改
+
+```java
+/**
+     * 批量删除、单条删除
+     * @param
+     * @return
+     */
+@ResponseBody
+@RequestMapping(value = "/delete.json")
+public ResultEntity<String> roleDelete(@RequestBody List<Integer> ids){
+    roleService.deleteByIds(ids);
+    return ResultEntity.successWithoutData();
+}
+
+/**
+     * 在模态框中更改角色，使用Ajax请求
+     * @param role
+     * @return
+     */
+@ResponseBody
+@RequestMapping(value = "/update.json")
+public ResultEntity<String> roleUpdate(Role role){
+    roleService.updateByPrimaryKey(role);
+    return ResultEntity.successWithoutData();
+}
+
+/**
+     * 在模态框中插入角色，使用Ajax请求
+     * @param role
+     * @return
+     */
+@ResponseBody
+@RequestMapping(value = "/save.json")
+public ResultEntity<String> roleSave(Role role){
+    roleService.insert(role);
+
+    return ResultEntity.successWithoutData();
 }
 ```
 
