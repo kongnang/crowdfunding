@@ -1301,7 +1301,15 @@ public String updateAdmin(@RequestParam("loginAcct")String loginAcct,
 
 这里很多功能都是通过js来实现，这里就不放js代码了。
 
-### 4.1 逆向工程
+### 4.1 创建数据表
+
+```sql
+CREATE TABLE `role` ( 
+`id` INT PRIMARY KEY auto_increment COMMENT '主键', 
+`name` CHAR(100) NOT NULL COMMENT '角色名称' );
+```
+
+### 4.2 逆向工程
 
 ```xml
 <!DOCTYPE generatorConfiguration PUBLIC
@@ -1346,7 +1354,7 @@ public class RoleGenerator {
 }
 ```
 
-### 4.2 分页
+### 4.3 分页
 
 ```java
 @Override
@@ -1383,7 +1391,7 @@ public ResultEntity<PageInfo<Role>> roleInfo(@RequestParam(value = "keyword",def
 }
 ```
 
-### 4.3 角色增删改
+### 4.4 角色增删改
 
 ```java
 /**
