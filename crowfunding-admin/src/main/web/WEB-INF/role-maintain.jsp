@@ -34,7 +34,7 @@
         $("#saveRoleBtn").click(function () {
             var roleName = $.trim($("#addModal [name=roleName]").val());
             $.ajax({
-                "url": "http://localhost:8080/admin/save.json",
+                "url": "http://localhost:8080/admin/role/save.json",
                 "type": "post",
                 "data": {
                     "name": roleName
@@ -69,7 +69,7 @@
         $("#updateRoleBtn").click(function(){
             var roleName = $("#editModal [name=roleName]").val();
             $.ajax({
-                "url":"http://localhost:8080/admin/update.json",
+                "url":"http://localhost:8080/admin/role/update.json",
                 "type":"post",
                 "data":{
                     "id":window.roleId,
@@ -96,7 +96,7 @@
         $("#removeRoleBtn").click(function(){
             var requestBody = JSON.stringify(window.roleIdArray);
             $.ajax({
-                "url":"http://localhost:8080/admin/delete.json",
+                "url":"http://localhost:8080/admin/role/delete.json",
                 "type":"post",
                 "data":requestBody,
                 "contentType":"application/json;charset=UTF-8",

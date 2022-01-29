@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -53,4 +56,15 @@ public class Menu {
      */
     private String icon;
 
+    /**
+     *
+     * 存储子节点的集合
+     */
+    private List<Menu> children = new ArrayList<>();
+
+    /**
+     *
+     *  控制节点是否为展开状态，默认为展开
+     */
+    private Boolean open = true;
 }

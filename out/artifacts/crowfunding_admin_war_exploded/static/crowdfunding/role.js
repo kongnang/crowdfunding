@@ -7,7 +7,7 @@ function generatePage() {
 
 function getPageInfoRemote() {
     var ajaxResult = $.ajax({
-        "url": "http://localhost:8080/admin/info.json",
+        "url": "http://localhost:8080/admin/role/info.json",
         "type":"post",
         "data": {
             "pageNum": window.pageNum,

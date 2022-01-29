@@ -1301,7 +1301,7 @@ public String updateAdmin(@RequestParam("loginAcct")String loginAcct,
 
 这里很多功能都是通过js来实现，这里就不放js代码了。
 
-### 4.1 创建数据表
+### 4.1 创建数据库表
 
 ```sql
 CREATE TABLE `role` ( 
@@ -1317,7 +1317,7 @@ CREATE TABLE `role` (
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 <generatorConfiguration>
     <context id="simple" targetRuntime="MyBatis3Simple">
-        <!--         nullCatalogMeansCurrent=true 解决生成的实体类与数据库表不一样的问题-->
+                <!--         nullCatalogMeansCurrent=true 解决生成的实体类与数据库表不一样的问题-->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
                         connectionURL="jdbc:mysql://localhost:3306/crowfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
                         userId="root"
@@ -1380,7 +1380,7 @@ public PageInfo<Role> selectByKeyword(String keyword, Integer pageNum, Integer p
      * @return RusultEntity封装的Ajax请求的响应
      */
 @ResponseBody
-@RequestMapping(value = "/info.json")
+@RequestMapping(value = "/role/info.json")
 public ResultEntity<PageInfo<Role>> roleInfo(@RequestParam(value = "keyword",defaultValue = "")String keyword,
                                              @RequestParam(value = "pageNum",defaultValue = "1")Integer pageNum,
                                              @RequestParam(value = "pageSize",defaultValue = "5")Integer pageSize){
@@ -1391,7 +1391,28 @@ public ResultEntity<PageInfo<Role>> roleInfo(@RequestParam(value = "keyword",def
 }
 ```
 
-### 4.4 角色增删改
+### 4.4 添加角色
+
+<img src="../img/admin-010.jpg" style="zoom: 80%;" />
+
+```java
+/**
+     * 在模态框中插入角色，使用Ajax请求
+     * @param role
+     * @return
+     */
+@ResponseBody
+@RequestMapping(value = "/role/save.json")
+public ResultEntity<String> roleSave(Role role){
+    roleService.insert(role);
+
+    return ResultEntity.successWithoutData();
+}
+```
+
+### 4.5 删除角色
+
+<img src="../img/admin-012.jpg" style="zoom: 80%;" />
 
 ```java
 /**
@@ -1400,34 +1421,219 @@ public ResultEntity<PageInfo<Role>> roleInfo(@RequestParam(value = "keyword",def
      * @return
      */
 @ResponseBody
-@RequestMapping(value = "/delete.json")
+@RequestMapping(value = "/role/delete.json")
 public ResultEntity<String> roleDelete(@RequestBody List<Integer> ids){
     roleService.deleteByIds(ids);
     return ResultEntity.successWithoutData();
 }
+```
 
+### 4.6 更新角色
+
+<img src="../img/admin-011.jpg" style="zoom: 80%;" />
+
+```java
 /**
      * 在模态框中更改角色，使用Ajax请求
-     * @param role
+     * @param role 在Ajax请求体中的role属性
      * @return
      */
 @ResponseBody
-@RequestMapping(value = "/update.json")
+@RequestMapping(value = "/role/update.json")
 public ResultEntity<String> roleUpdate(Role role){
     roleService.updateByPrimaryKey(role);
     return ResultEntity.successWithoutData();
 }
+```
 
+## 5 菜单维护功能
+
+### 5.1 创建数据库表
+
+```sql
+CREATE TABLE menu(
+id INT(11) NOT NULL auto_increment COMMENT '主键',
+pid INT(11) COMMENT '父节点id',
+`name` VARCHAR(200) COMMENT '名称',
+url VARCHAR(200) COMMENT 'url',
+icon VARCHAR(200) COMMENT '图标',
+PRIMARY KEY (id)
+);
+
+# 插入数据
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('1',NULL,'系统权限菜单','glyphicon glyphicon-th-list',NULL);
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('2','1','控制面板','glyphicon glyphicon-dashboard','main.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('3','1','权限管理','glyphicon glyphicon glyphicon-tasks',NULL);
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('4','3','用户维护','glyphicon glyphicon-user','user/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('5','3','角色维护','glyphicon glyphicon-king','role/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('6','3','菜单维护','glyphicon glyphicon-lock','permission/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('7','1','业务审核','glyphicon glyphicon-ok',NULL);
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('8','7','实名认证审核','glyphicon glyphicon-check','auth_cert/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('9','7','广告审核','glyphicon glyphicon-check','auth_adv/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('10','7','项目审核','glyphicon glyphicon-check','auth_project/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('11','1','业务管理','glyphicon glyphicon-th-large',NULL);
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('12','11','资质维护','glyphicon glyphicon-picture','cert/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('13','11','分类管理','glyphicon glyphicon-equalizer','certtype/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('14','11','流程管理','glyphicon glyphicon-random','process/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('15','11','广告管理','glyphicon glyphicon-hdd','advert/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('16','11','消息模板','glyphicon glyphicon-comment','message/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('17','11','项目分类','glyphicon glyphicon-list','projectType/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('18','11','项目标签','glyphicon glyphicon-tags','tag/index.htm');
+INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('19','1','参数管理','glyphicon glyphicon-list-alt','param/index.htm');
+```
+
+### 5.2 逆向工程
+
+```xml	
+<!DOCTYPE generatorConfiguration PUBLIC
+        "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="simple" targetRuntime="MyBatis3Simple">
+        <!--         nullCatalogMeansCurrent=true 解决生成的实体类与数据库表不一样的问题-->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/crowfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
+                        userId="root"
+                        password="bruce123" />
+
+        <!--实体类-->
+        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowfunding-admin/src/main/java"/>
+        <!--映射文件-->
+        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowfunding-admin/src/main"/>
+        <!--接口类-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowfunding-admin/src/main/java"/>
+
+        <table tableName="menu" />
+    </context>
+</generatorConfiguration>
+```
+
+```java
+public class MenuGenerator {
+    public static void main(String[] args) {
+        try {
+            List<String> warnings = new ArrayList<String>();
+            boolean overwrite = true;
+            File configFile = new File("./crowfunding-reverse/src/main/resources/generatorConfigMenu.xml");
+            ConfigurationParser cp = new ConfigurationParser(warnings);
+            Configuration config = cp.parseConfiguration(configFile);
+            DefaultShellCallback callback = new DefaultShellCallback(overwrite);
+            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, callback, warnings);
+            myBatisGenerator.generate(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### 5.3 展示树形结构
+
+```java
 /**
-     * 在模态框中插入角色，使用Ajax请求
-     * @param role
+     * 取出所有节点，组装成树形结构
      * @return
      */
 @ResponseBody
-@RequestMapping(value = "/save.json")
-public ResultEntity<String> roleSave(Role role){
-    roleService.insert(role);
+@RequestMapping("/menu/info.json")
+public ResultEntity<Menu> menuTree(){
+    // 查询所有节点
+    List<Menu> menus = menuService.selectAll();
+    // 创建根节点
+    Menu root = null;
+    // 创建HashMap来存储节点，构造tree
+    HashMap<Integer,Menu> menuHashMap = new HashMap<>();
+    // 遍历所有节点，放入HashMap中
+    for(Menu menu : menus){
+        Integer id = menu.getId();
+        menuHashMap.put(id,menu);
+    }
+    // 遍历所有节点，填充其子节点
+    for(Menu menu : menus){
+        Integer pid = menu.getPid();
+        // 判断是否是根节点
+        if (pid == null){
+            root = menu;
+            continue;
+        }
+        // 找到当前节点的父节点，将当前节点存入父节点的children
+        Menu father = menuHashMap.get(pid);
+        father.getChildren().add(menu);
+    }
+    // 返回根节点，就能得到整棵树
+    return ResultEntity.successWithData(root);
+}
+```
 
+### 5.4 添加菜单
+
+![](../img/admin-013.jpg)
+
+```java
+/**
+     * 添加子节点
+     * @param menu
+     * @return
+     */
+@ResponseBody
+@RequestMapping("/menu/add.json")
+public ResultEntity<String> addMenu(Menu menu){
+    menuService.insertMenu(menu);
+    return ResultEntity.successWithoutData();
+}
+```
+
+### 5.5 删除菜单
+
+![](../img/admin-015.jpg)
+
+```java
+/**
+     * 删除节点
+     * @param id 
+     * @return
+     */
+@ResponseBody
+@RequestMapping("/menu/delete.json")
+public ResultEntity<String> deleteMenu(Integer id){
+    menuService.deleteByPrimaryKey(id);
+    return ResultEntity.successWithoutData();
+}
+```
+
+### 5.6 更新菜单
+
+![](../img/admin-014.jpg)
+
+由于更新时没有传入pid，为了避免pid为空，在sql语句中不更新没有修改的字段。
+
+#### 5.6.1 sql语句
+
+```xml
+<update id="updateByPrimaryKeySelective" parameterType="com.admin.entity.Menu">
+    update menu
+    <set>
+        <if test="pid != null">pid=#{pid},</if>
+        <if test="name != null">name=#{name},</if>
+        <if test="url != null">url=#{url},</if>
+        <if test="icon != null">icon=#{icon}</if>
+    </set>
+    where id=#{id}
+</update>
+```
+
+#### 5.6.2 Controller实现
+
+```java
+/**
+     * 更新节点，不修改pid
+     * @param menu
+     * @return
+     */
+@ResponseBody
+@RequestMapping("/menu/update.json")
+public ResultEntity<String> updateMenu(Menu menu){
+    menuService.updateByPrimaryKeySelective(menu);
     return ResultEntity.successWithoutData();
 }
 ```

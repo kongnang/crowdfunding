@@ -28,7 +28,7 @@ public class RoleController {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/delete.json")
+    @RequestMapping(value = "/role/delete.json")
     public ResultEntity<String> roleDelete(@RequestBody List<Integer> ids){
         roleService.deleteByIds(ids);
         return ResultEntity.successWithoutData();
@@ -40,7 +40,7 @@ public class RoleController {
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/update.json")
+    @RequestMapping(value = "/role/update.json")
     public ResultEntity<String> roleUpdate(Role role){
         roleService.updateByPrimaryKey(role);
         return ResultEntity.successWithoutData();
@@ -48,11 +48,11 @@ public class RoleController {
 
     /**
      * 在模态框中插入角色，使用Ajax请求
-     * @param role
+     * @param role 在Ajax请求体中的role属性
      * @return
      */
     @ResponseBody
-    @RequestMapping(value = "/save.json")
+    @RequestMapping(value = "/role/save.json")
     public ResultEntity<String> roleSave(Role role){
         roleService.insert(role);
 
@@ -67,7 +67,7 @@ public class RoleController {
      * @return RusultEntity封装的Ajax请求的响应
      */
     @ResponseBody
-    @RequestMapping(value = "/info.json")
+    @RequestMapping(value = "/role/info.json")
     public ResultEntity<PageInfo<Role>> roleInfo(@RequestParam(value = "keyword",defaultValue = "")String keyword,
                                        @RequestParam(value = "pageNum",defaultValue = "1")Integer pageNum,
                                        @RequestParam(value = "pageSize",defaultValue = "5")Integer pageSize){
