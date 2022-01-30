@@ -1215,6 +1215,12 @@ public String deleteAdmin(HttpServletRequest request,
 }
 ```
 
+>以下功能待实现：
+>
+>不允许删除当前登录的管理员账号
+>
+>批量删除功能
+
 ### 3.4 更新管理员
 
 #### 3.4.1 sql语句

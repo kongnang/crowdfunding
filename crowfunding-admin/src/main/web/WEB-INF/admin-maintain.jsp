@@ -24,8 +24,8 @@
             num_display_entries: 5,
             callback: pageSelectCallback,
             current_page: ${adminPageInfo.pageNum-1},
-            prev_text: "prev ",
-            next_text: "next ",
+            prev_text: "Prev",
+            next_text: "Next",
             items_per_page:${adminPageInfo.pageSize}
         };
         $("#Pagination").pagination(totalRecord, properties);
@@ -55,7 +55,7 @@
                                 <input name="keyword" class="form-control has-success" type="text" placeholder="请输入查询条件">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-warning"><i class="glyphicon glyphicon-search"></i> 查询</button>
+                        <button type="button" class="btn btn-warning"><i class="glyphicon glyphicon-search"></i> 查询</button>
                     </form>
                     <button type="button" class="btn btn-danger" style="float:right;margin-left:10px;"><i class=" glyphicon glyphicon-remove"></i> 删除</button>
                     <button type="button" class="btn btn-primary" style="float:right;" onclick="window.location.href='http://localhost:8080/admin/add'"><i class="glyphicon glyphicon-plus"></i> 新增</button>
