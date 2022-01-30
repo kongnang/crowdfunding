@@ -73,8 +73,8 @@ function generateNavigator(pageInfo) {
         "callback": paginationCallBack,
         "items_per_page": pageInfo.pageSize,
         "current_page": pageInfo.pageNum - 1,
-        "prev_text": "prev ",
-        "next_text": "next "
+        "prev_text": "上一页",
+        "next_text": "下一页"
     }
 // 调用 pagination()函数
     $("#Pagination").pagination(totalRecord, properties);
