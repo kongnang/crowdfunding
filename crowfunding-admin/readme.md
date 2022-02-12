@@ -1613,7 +1613,7 @@ public ResultEntity<String> deleteMenu(Integer id){
 
 由于更新时没有传入pid，为了避免pid为空，在sql语句中不更新没有修改的字段。
 
-#### 5.6.1 sql语句
+查询语句
 
 ```xml
 <update id="updateByPrimaryKeySelective" parameterType="com.admin.entity.Menu">
@@ -1628,7 +1628,7 @@ public ResultEntity<String> deleteMenu(Integer id){
 </update>
 ```
 
-#### 5.6.2 Controller实现
+Controller实现
 
 ```java
 /**
@@ -1644,3 +1644,64 @@ public ResultEntity<String> updateMenu(Menu menu){
 }
 ```
 
+## 6 分配
+
+### 6.1 管理员角色分配
+
+#### 6.1.2 建立admin-role关联关系数据表
+
+```sql
+CREATE TABLE admin_role (
+`id` INT NOT NULL auto_increment,
+`admin_id` INT,
+`role_id` INT,
+PRIMARY KEY (`id`));
+```
+
+#### 6.1.2 查询某管理员对应的角色
+
+```xml
+<!-- 查找已分配角色信息-->
+<select id="getAssignedRole" resultMap="BaseResultMap">
+    select * from role where role.id in
+    (select admin_role.role_id from admin_role
+    where admin_role.admin_id=#{adminId})
+</select>
+
+<!-- 查找已分配角色信息-->
+<select id="getUnassignedRole" resultMap="BaseResultMap">
+    select * from role where role.id not in
+    (select admin_role.role_id from admin_role
+    where admin_role.admin_id=#{adminId})
+</select>
+```
+
+#### 6.1.3 分配页面显示
+
+<img src="../img/admin-016.png" style="zoom:60%;" />
+
+```java
+/**
+     * 分配角色页面
+     * @param adminId
+     * @param pageNum
+     * @param modelMap
+     * @return
+     */
+@RequestMapping("/assign")
+public String assignRolePage(@RequestParam("adminId")Integer adminId,
+                             @RequestParam("pageNum")Integer pageNum,
+                             ModelMap modelMap){
+    // 查找已分配角色和未分配角色
+    List<Role> assignedRole = roleService.getAssignedRole(adminId);
+    List<Role> unassignedRole = roleService.getUnassignedRole(adminId);
+
+    // 存入模型
+    modelMap.addAttribute("assignedRole",assignedRole);
+    modelMap.addAttribute("unassignedRole",unassignedRole);
+
+    return "assign-role";
+}
+```
+
+### 6.2 角色权限分配
