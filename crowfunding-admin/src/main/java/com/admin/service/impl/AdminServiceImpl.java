@@ -29,6 +29,27 @@ public class AdminServiceImpl implements AdminService {
     private AdminMapper adminMapper;
 
     /**
+     * 建立新的管理员角色关系
+     * @param adminId
+     * @param roleIdList
+     * @return
+     */
+    @Override
+    public int insertAdminRoleRelationship(Integer adminId, List<Integer> roleIdList) {
+        return adminMapper.insertAdminRoleRelationship(adminId,roleIdList);
+    }
+
+    /**
+     * 删除旧的管理员角色关系
+     * @param adminId
+     * @return
+     */
+    @Override
+    public int deleteAdminRoleRelationship(Integer adminId) {
+        return adminMapper.deleteAdminRoleRelationship(adminId);
+    }
+
+    /**
      * 修改管理员信息
      * @param admin
      * @return 返回影响的行数

@@ -88,9 +88,9 @@
                                             <td>${admin.userName }</td>
                                             <td>${admin.email }</td>
                                             <td>
-                                                <button type="button" class="btn btn-success btn-xs">
+                                                <a href="http://localhost:8080/admin/assign?adminId=${admin.id }&pageNum=${adminPageInfo.pageNum }" class="btn btn-success btn-xs">
                                                     <i class=" glyphicon glyphicon-check"></i>
-                                                </button>
+                                                </a>
                                                 <a href="http://localhost:8080/admin/update?id=${admin.id}" class="btn btn-primary btn-xs">
                                                     <i class=" glyphicon glyphicon-pencil"></i>
                                                 </a>

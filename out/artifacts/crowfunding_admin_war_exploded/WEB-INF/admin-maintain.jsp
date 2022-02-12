@@ -24,8 +24,8 @@
             num_display_entries: 5,
             callback: pageSelectCallback,
             current_page: ${adminPageInfo.pageNum-1},
-            prev_text: "上一页",
-            next_text: "下一页",
+            prev_text: "Prev",
+            next_text: "Next",
             items_per_page:${adminPageInfo.pageSize}
         };
         $("#Pagination").pagination(totalRecord, properties);
@@ -88,9 +88,9 @@
                                             <td>${admin.userName }</td>
                                             <td>${admin.email }</td>
                                             <td>
-                                                <button type="button" class="btn btn-success btn-xs">
+                                                <a href="http://localhost:8080/admin/assign?adminId=${admin.id }&pageNum=${adminPageInfo.pageNum }" class="btn btn-success btn-xs">
                                                     <i class=" glyphicon glyphicon-check"></i>
-                                                </button>
+                                                </a>
                                                 <a href="http://localhost:8080/admin/update?id=${admin.id}" class="btn btn-primary btn-xs">
                                                     <i class=" glyphicon glyphicon-pencil"></i>
                                                 </a>

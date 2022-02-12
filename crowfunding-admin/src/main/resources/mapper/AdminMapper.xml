@@ -43,4 +43,16 @@
                      user_name=#{userName},
                      email=#{email} where id=#{id}
   </update>
+  
+  <!--  admin-role表的操作-->
+  <delete id="deleteAdminRoleRelationship">
+    delete from admin_role where admin_role.admin_id=#{adminId}
+  </delete>
+
+  <insert id="insertAdminRoleRelationship">
+    insert into admin_role(admin_id,role_id) values
+    <foreach collection="roleIdList" item="roleId" separator=",">
+      (#{adminId},#{roleId})
+    </foreach>
+  </insert>
 </mapper>

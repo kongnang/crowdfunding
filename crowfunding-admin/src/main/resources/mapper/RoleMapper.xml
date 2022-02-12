@@ -45,4 +45,16 @@
     </foreach>
   </delete>
 
+  <!-- 查找已分配角色信息-->
+  <select id="getAssignedRole" resultMap="BaseResultMap">
+    select * from role where role.id in
+                             (select admin_role.role_id from admin_role
+                             where admin_role.admin_id=#{adminId})
+  </select>
+  <!-- 查找已分配角色信息-->
+  <select id="getUnassignedRole" resultMap="BaseResultMap">
+    select * from role where role.id not in
+                             (select admin_role.role_id from admin_role
+                             where admin_role.admin_id=#{adminId})
+  </select>
 </mapper>

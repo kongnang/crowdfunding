@@ -21,4 +21,8 @@ public interface AdminService {
     Boolean deleteAdminById(Integer id);
 
     Boolean updateAdminById(Admin admin);
+
+    int deleteAdminRoleRelationship(Integer adminId);
+
+    int insertAdminRoleRelationship(Integer adminId,List<Integer> roleIdList);
 }

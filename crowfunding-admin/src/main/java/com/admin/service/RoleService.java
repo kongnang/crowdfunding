@@ -17,4 +17,8 @@ public interface RoleService {
     int updateByPrimaryKey(Role role);
 
     int deleteByIds(List<Integer> ids);
+
+    List<Role> getAssignedRole(Integer adminId);
+
+    List<Role> getUnassignedRole(Integer adminId);
 }

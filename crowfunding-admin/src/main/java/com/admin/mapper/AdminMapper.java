@@ -17,4 +17,8 @@ public interface AdminMapper {
     Boolean deleteAdminById(Integer id);
 
     Boolean updateAdminById(Admin admin);
+
+    int deleteAdminRoleRelationship(Integer adminId);
+
+    int insertAdminRoleRelationship(@Param("adminId")Integer adminId,@Param("roleIdList") List<Integer> roleIdList);
 }

@@ -21,6 +21,22 @@ public class RoleServiceImpl implements RoleService {
     private RoleMapper roleMapper;
 
     /**
+     * 在admin_role表中出现的角色表示已经分配
+     * 通过adminId在admin_role中查找，再到role表中取出该角色信息
+     * @param adminId
+     * @return
+     */
+    @Override
+    public List<Role> getAssignedRole(Integer adminId) {
+        return roleMapper.getAssignedRole(adminId);
+    }
+
+    @Override
+    public List<Role> getUnassignedRole(Integer adminId) {
+        return roleMapper.getUnassignedRole(adminId);
+    }
+
+    /**
      * 根据id进行批量删除
      * @param ids
      * @return
