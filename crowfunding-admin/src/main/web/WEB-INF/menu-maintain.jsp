@@ -11,7 +11,7 @@
 <%@ include file="include-head.jsp" %>
 <link rel="stylesheet" href="./static/ztree/zTreeStyle.css"/>
 <script type="text/javascript" src="./static/ztree/jquery.ztree.all-3.5.min.js"></script>
-<script type="text/javascript" src="./static/crowdfunding/menu.js"></script>
+<script type="text/javascript" src="./static/crowdfunding-js/menu.js"></script>
 <script type="text/javascript">
     $(function () {
         generateTree();
