@@ -1,3 +1,62 @@
+// 声明专门的函数用来在分配Auth 的模态框中显示Auth 的树形结构数据
+function fillAuthTree() {
+    // 1.发送Ajax 请求查询Auth 数据
+    var ajaxReturn = $.ajax({
+        "url":"http://localhost:8080/admin/assign/auth/info.json",
+        "type":"post",
+        "dataType":"json",
+        "async":false
+    });
+    if(ajaxReturn.status != 200) {
+        layer.msg(" 请求处理出错！状态码： "+ajaxReturn.status+" 错误信息："+ajaxReturn.statusText);
+        return ;
+    }
+    // 2.从响应结果中获取Auth 的JSON 数据
+    var authList = ajaxReturn.responseJSON.data;
+    // 3.准备对zTree 进行设置的JSON 对象
+    var setting = {
+        "data": {
+            "simpleData": {
+                "enable": true,
+                "pIdKey": "categoryId"
+            },
+            "key": {
+                "name": "title"
+            }
+        },
+        "check": {
+            "enable": true
+        }
+    };
+    // 4.生成树形结构
+    $.fn.zTree.init($("#authTreeDemo"), setting, authList);
+    var zTreeObj = $.fn.zTree.getZTreeObj("authTreeDemo");
+    zTreeObj.expandAll(true);
+    // 5.查询已分配的Auth 的id 组成的数组
+    ajaxReturn = $.ajax({
+        "url":"http://localhost:8080/admin/assign/auth/info/assignedAuthId.json",
+        "type":"post",
+        "data":{
+            "roleId":window.roleId
+        },
+        "dataType":"json",
+        "async":false
+    });
+    if(ajaxReturn.status != 200) {
+        layer.msg(" 请求处理出错！状态码： "+ajaxReturn.status+" 错误信息："+ajaxReturn.statusText);
+        return ;
+    }
+    var authIdArray = ajaxReturn.responseJSON.data;
+    // 6.根据authIdArray 把树形结构中对应的节点勾选上
+    for(var i = 0; i < authIdArray.length; i++) {
+        var authId = authIdArray[i];
+        var treeNode = zTreeObj.getNodeByParam("id", authId);
+        var checked = true;
+        var checkTypeFlag = false;
+        zTreeObj.checkNode(treeNode, checked, checkTypeFlag);
+    }
+}
+
 function generatePage() {
 // 1.获取分页数据
     var pageInfo = getPageInfoRemote();
@@ -52,7 +111,7 @@ function fillTableBody(pageInfo) {
         var numberTd = "<td>"+(i+1)+"</td>";
         var checkboxTd = "<td><input id='"+roleId+"' class='itemBox' type='checkbox'></td>";
         var roleNameTd = "<td>"+roleName+"</td>";
-        var checkBtn = "<button type='button' class='btn btn-success btn-xs'><i class=' glyphicon glyphicon-check'></i></button>";
+        var checkBtn = "<button id='"+roleId+"' type='button' class='btn btn-success btn-xs checkBtn'><i class=' glyphicon glyphicon-check'></i></button>";
         var pencilBtn = "<button id='"+roleId+"' type='button' class='btn btn-primary btn-xs pencilBtn'><i class=' glyphicon glyphicon-pencil'></i></button>";
         var removeBtn = "<button id='"+roleId+"' type='button' class='btn btn-danger btn-xs removeBtn'><i class=' glyphicon glyphicon-remove'></i></button>";
         var buttonTd = "<td>"+checkBtn+" "+pencilBtn+" "+removeBtn+"</td>";

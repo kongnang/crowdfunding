@@ -10,12 +10,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>>
 <html lang="zh-CN">
 <%@ include file="include-head.jsp" %>
-<link rel="stylesheet" href="./static/css/pagination.css">
+<link rel="stylesheet" href="./static/css/pagination.css"/>
+<link rel="stylesheet" href="./static/ztree/zTreeStyle.css"/>
+<script type="text/javascript" src="./static/ztree/jquery.ztree.all-3.5.min.js"></script>
 <script type="text/javascript" src="./static/jquery/jquery.pagination.js"></script>
-<script type="text/javascript" src="./static/crowdfunding/role.js"></script>
+<script type="text/javascript" src="./static/crowdfunding-js/role.js"></script>
 <script type="text/javascript">
     $(function() {
-// 1.为分页操作准备初始化数据
+        // 1.为分页操作准备初始化数据
         window.pageNum = 1;
         window.pageSize = 5;
         window.keyword = "";
@@ -157,6 +159,49 @@
             }
             showConfirmModal(roleArray);
         });
+        // 13.给分配权限按钮绑定单击响应函数
+        $("#rolePageBody").on("click",".checkBtn",function(){
+            // 把当前角色id存入全局变量
+            window.roleId = this.id;
+            $("#assignModal").modal("show");
+            fillAuthTree();
+        });
+        // 14.给分配权限模态框中的“分配”按钮绑定单击响应函数
+        $("#assignBtn").click(function() {
+            var authIdArray = [];
+            var zTreeObj = $.fn.zTree.getZTreeObj("authTreeDemo");
+            var checkedNodes = zTreeObj.getCheckedNodes();
+            for (var i = 0; i < checkedNodes.length; i++) {
+                var checkedNode = checkedNodes[i];
+                var authId = checkedNode.id;
+                authIdArray.push(authId);
+            }
+            var requestBody = {
+                "authIdList": authIdArray,
+                "roleId": [window.roleId]
+            };
+            requestBody = JSON.stringify(requestBody);
+            $.ajax({
+                "url": "http://localhost:8080/admin/assign/auth/save.json",
+                "type": "post",
+                "data": requestBody,
+                "contentType": "application/json;charset=UTF-8",
+                "dataType": "json",
+                "success": function (response) {
+                    var result = response.operationResult;
+                    if (result == "SUCCESS") {
+                        layer.msg("操作成功！");
+                    }
+                    if (result == "FAILED") {
+                        layer.msg("操作失败！" + response.message);
+                    }
+                },
+                "error": function (response) {
+                    layer.msg(response.status + " " + response.statusText);
+                }
+            });
+            $("#assignModal").modal("hide");
+        });
     });
 </script>
 
@@ -237,5 +282,6 @@
 <%@include file="/WEB-INF/modal-role-add.jsp" %>
 <%@include file="/WEB-INF/modal-role-update.jsp"%>
 <%@include file="/WEB-INF/modal-role-delete.jsp"%>
+<%@include file="/WEB-INF/modal-role-assign-auth.jsp"%>
 </body>
 </html>

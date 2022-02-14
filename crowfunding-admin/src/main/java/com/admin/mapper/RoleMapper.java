@@ -1,6 +1,8 @@
 package com.admin.mapper;
 
 import com.admin.entity.Role;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 public interface RoleMapper {

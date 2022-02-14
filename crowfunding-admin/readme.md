@@ -1490,48 +1490,7 @@ INSERT INTO `menu` (`id`, `pid`, `name`, `icon`, `url`) values('19','1','参数�
 
 ### 5.2 逆向工程
 
-```xml	
-<!DOCTYPE generatorConfiguration PUBLIC
-        "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
-        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
-<generatorConfiguration>
-    <context id="simple" targetRuntime="MyBatis3Simple">
-        <!--         nullCatalogMeansCurrent=true 解决生成的实体类与数据库表不一样的问题-->
-        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/crowfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
-                        userId="root"
-                        password="bruce123" />
-
-        <!--实体类-->
-        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowfunding-admin/src/main/java"/>
-        <!--映射文件-->
-        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowfunding-admin/src/main"/>
-        <!--接口类-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowfunding-admin/src/main/java"/>
-
-        <table tableName="menu" />
-    </context>
-</generatorConfiguration>
-```
-
-```java
-public class MenuGenerator {
-    public static void main(String[] args) {
-        try {
-            List<String> warnings = new ArrayList<String>();
-            boolean overwrite = true;
-            File configFile = new File("./crowfunding-reverse/src/main/resources/generatorConfigMenu.xml");
-            ConfigurationParser cp = new ConfigurationParser(warnings);
-            Configuration config = cp.parseConfiguration(configFile);
-            DefaultShellCallback callback = new DefaultShellCallback(overwrite);
-            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, callback, warnings);
-            myBatisGenerator.generate(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
-```
+略。参考之前的逆向工程。
 
 ### 5.3 展示树形结构
 
@@ -1644,7 +1603,7 @@ public ResultEntity<String> updateMenu(Menu menu){
 }
 ```
 
-## 6 分配
+## 6 权限控制
 
 ### 6.1 管理员角色分配
 
@@ -1658,7 +1617,9 @@ CREATE TABLE admin_role (
 PRIMARY KEY (`id`));
 ```
 
-#### 6.1.2 查询某管理员对应的角色
+#### 6.1.2 通过adminId查询角色
+
+RoleMapper.xml
 
 ```xml
 <!-- 查找已分配角色信息-->
@@ -1679,6 +1640,8 @@ PRIMARY KEY (`id`));
 #### 6.1.3 分配页面显示
 
 <img src="../img/admin-016.png" style="zoom:60%;" />
+
+AssignController.java
 
 ```java
 /**
@@ -1704,4 +1667,174 @@ public String assignRolePage(@RequestParam("adminId")Integer adminId,
 }
 ```
 
+#### 6.1.4 执行分配
+
+AdminMapper.xml
+
+```xml
+<!-- 删除旧的管理员用户关系-->
+<delete id="deleteAdminRoleRelationship">
+    delete from admin_role where admin_role.admin_id=#{adminId}
+</delete>
+<!-- 插入新的管理员用户关系-->
+<insert id="insertAdminRoleRelationship">
+    insert into admin_role(admin_id,role_id) values
+    <foreach collection="roleIdList" item="roleId" separator=",">
+        (#{adminId},#{roleId})
+    </foreach>
+</insert>
+```
+
+AssignController.java
+
+```java
+/**
+     * 保存角色分配
+     * @param adminId
+     * @param pageNum
+     * @param roleIdList
+     * @return
+     */
+@PostMapping("/assign/save")
+public String saveAdminRoleRelationship(@RequestParam("adminId")Integer adminId,
+                                        @RequestParam("pageNum")Integer pageNum,
+                                        @RequestParam(value = "roleIdList",required = false)List<Integer> roleIdList){
+    // 删除旧的管理员角色关系
+    adminService.deleteAdminRoleRelationship(adminId);
+    // 建立新的管理员角色关系
+    if(roleIdList != null && roleIdList.size() > 0){
+        adminService.insertAdminRoleRelationship(adminId,roleIdList);
+    }
+    return "redirect:/assign?adminId="+adminId+"&pageNum="+pageNum;
+}
+```
+
 ### 6.2 角色权限分配
+
+此功能在模态框中完成。
+
+<img src="../img/admin-017.jpg" style="zoom:67%;" />
+
+#### 6.2.1 权限数据表
+
+```sql
+CREATE TABLE `auth` (
+`id` int(11) NOT NULL auto_increment COMMENT 'id',
+`name` varchar(200) DEFAULT NULL COMMENT '用于权限验证字段',
+`title` varchar(200) DEFAULT NULL COMMENT '用于方便用户查看',
+`category_id` int(11) DEFAULT NULL COMMENT '所属分类',
+PRIMARY KEY (`id`)
+);
+
+INSERT INTO auth(id,`name`,title,category_id) VALUES(1,'','用户模块',NULL);
+INSERT INTO auth(id,`name`,title,category_id) VALUES(2,'user:delete','删除',1);
+INSERT INTO auth(id,`name`,title,category_id) VALUES(3,'user:get','查询',1);
+INSERT INTO auth(id,`name`,title,category_id) VALUES(4,'','角色模块',NULL);
+INSERT INTO auth(id,`name`,title,category_id) VALUES(5,'role:delete','删除',4);
+INSERT INTO auth(id,`name`,title,category_id) VALUES(6,'role:get','查询',4);
+INSERT INTO auth(id,`name`,title,category_id) VALUES(7,'role:add','新增',4);
+```
+
+#### 6.2.2 逆向工程
+
+略。参考之前的逆向工程。
+
+#### 6.2.3 建立role-auth关联关系数据表
+
+```sql
+CREATE TABLE role_auth (
+`id` INT NOT NULL auto_increment,
+`role_id` INT,
+`auth_id` INT,
+PRIMARY KEY (`id`));
+```
+
+#### 6.2.4 查询所有权限
+
+AssignController.java
+
+```java
+/**
+    * Ajax请求，获取所有auth
+    * @return
+    */
+@ResponseBody
+@RequestMapping("/assign/auth/info.json")
+public ResultEntity<List<Auth>> getAllAuth(){
+    List<Auth> auths = authService.selectAll();
+    return ResultEntity.successWithData(auths);
+}
+```
+
+#### 6.2.5 通过roleId查询已分配权限
+
+AuthMapper.xml
+
+```xml
+<select id="selectAssignedAuthIdByRoleId" resultType="java.lang.Integer">
+    select auth.id from auth where auth.id in
+    (select role_auth.auth_id from role_auth
+    where role_auth.role_id=#{roleId})
+</select>
+```
+
+AssignController.java
+
+```java
+/**
+     * 根据角色id查找已分配的权限
+     * @param roleId
+     * @return
+     */
+@ResponseBody
+@RequestMapping("/assign/auth/info/assignedAuthId.json")
+public ResultEntity<List<Integer>> getAssignedAuth(@RequestParam("roleId")Integer roleId){
+    List<Integer> roleIdList = authService.selectAssignedAuthIdByRoleId(roleId);
+    return ResultEntity.successWithData(roleIdList);
+}
+```
+
+#### 6.2.6 执行分配
+
+AuthMapper.xml
+
+```xml
+<!-- 删除旧的角色权限关系-->
+<delete id="deleteRoleAuthRelationship">
+    delete from role_auth where role_auth.role_id=#{roleId}
+</delete>
+<!-- 插入新的角色权限关系-->
+<insert id="insertRoleAuthRelationship">
+    insert into role_auth(role_id,auth_id) values
+    <foreach collection="authIdList" item="authId" separator=",">
+        (#{roleId},#{authId})
+    </foreach>
+</insert>
+```
+
+AssignController.java
+
+```java
+/**
+     * 请求体中以map的形式存取roleId,authIdList。
+     * 其中roleId,authIdList都封装为数组
+     * @param map
+     * @return
+     */
+@ResponseBody
+@RequestMapping("/assign/auth/save.json")
+public ResultEntity<String> saveRoleAuthRelationship(@RequestBody Map<String,List<Integer>> map){
+    // 获取roleId
+    List<Integer> roleIdList = map.get("roleId");
+    Integer roleId = roleIdList.get(0);
+    // 获取authIdList
+    List<Integer> authIdList = map.get("authIdList");
+
+    authService.deleteRoleAuthRelationship(roleId);
+    if(authIdList != null && authIdList.size() > 0){
+        authService.insertRoleAuthRelationship(roleId,authIdList);
+    }
+    return ResultEntity.successWithoutData();
+}
+```
+
