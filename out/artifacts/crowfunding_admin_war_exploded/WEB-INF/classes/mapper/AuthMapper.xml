@@ -39,13 +39,13 @@
     from auth
   </select>
 
+  <!-- role-auth表操作-->
   <select id="selectAssignedAuthIdByRoleId" resultType="java.lang.Integer">
     select auth.id from auth where auth.id in
                               (select role_auth.auth_id from role_auth
                               where role_auth.role_id=#{roleId})
   </select>
 
-  <!-- role-auth表操作-->
   <delete id="deleteRoleAuthRelationship">
     delete from role_auth where role_auth.role_id=#{roleId}
   </delete>
