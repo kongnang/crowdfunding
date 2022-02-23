@@ -27,13 +27,13 @@ public class RoleServiceImpl implements RoleService {
      * @return
      */
     @Override
-    public List<Role> getAssignedRole(Integer adminId) {
-        return roleMapper.getAssignedRole(adminId);
+    public List<Role> selectAssignedRole(Integer adminId) {
+        return roleMapper.selectAssignedRole(adminId);
     }
 
     @Override
-    public List<Role> getUnassignedRole(Integer adminId) {
-        return roleMapper.getUnassignedRole(adminId);
+    public List<Role> selectUnassignedRole(Integer adminId) {
+        return roleMapper.selectUnassignedRole(adminId);
     }
 
     /**

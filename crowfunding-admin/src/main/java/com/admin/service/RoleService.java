@@ -18,7 +18,7 @@ public interface RoleService {
 
     int deleteByIds(List<Integer> ids);
 
-    List<Role> getAssignedRole(Integer adminId);
+    List<Role> selectAssignedRole(Integer adminId);
 
-    List<Role> getUnassignedRole(Integer adminId);
+    List<Role> selectUnassignedRole(Integer adminId);
 }
