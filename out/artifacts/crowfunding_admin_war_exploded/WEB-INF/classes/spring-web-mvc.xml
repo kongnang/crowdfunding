@@ -34,7 +34,7 @@
     </mvc:interceptors>
 
     <!-- 配置视图解析器 -->
-    <bean id="vireResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <!--视图前缀-->
         <property name="prefix" value="/WEB-INF/"/>
         <!--视图后缀-->
