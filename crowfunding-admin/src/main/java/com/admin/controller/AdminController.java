@@ -186,26 +186,25 @@ public class AdminController{
     }
 
     /**
+     * 该方法已遗弃，使用spring security来代替该方法
+     *
      * 管理员提交账号密码，之后跳转到主页面
      * @param adminAcc
      * @param adminPwd
      * @param session
      * @return
      */
-    @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public String adminLogin(@RequestParam("adminAcc")String adminAcc,
-                             @RequestParam("adminPwd")String adminPwd,
-                             HttpSession session){
-        // 传入账号密码与数据库进行对比
-        Admin admin = adminService.selectByAdminAccAndPwd(adminAcc, adminPwd);
-        // 将管理员信息放入session域中
-        session.setAttribute(CrowFundingConstant.ADAMIN_LOGIN_NAME,admin);
-
-        // TODO 将sout换成logger.info
-//        System.out.println(admin);
-
-        return "redirect:/main";
-    }
+//    @RequestMapping(value = "/login",method = RequestMethod.POST)
+//    public String adminLogin(@RequestParam("adminAcc")String adminAcc,
+//                             @RequestParam("adminPwd")String adminPwd,
+//                             HttpSession session){
+//        // 传入账号密码与数据库进行对比
+//        Admin admin = adminService.selectByAdminAccAndPwd(adminAcc, adminPwd);
+//        // 将管理员信息放入session域中
+//        session.setAttribute(CrowFundingConstant.ADAMIN_LOGIN_NAME,admin);
+//
+//        return "redirect:/main";
+//    }
 
     /**
      * 管理员登录界面
