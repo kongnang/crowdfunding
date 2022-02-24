@@ -4,6 +4,7 @@ import com.admin.entity.Menu;
 import com.admin.service.MenuService;
 import com.util.ResultEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -94,6 +95,7 @@ public class MenuController {
      * 菜单维护页面
      * @return
      */
+    @PreAuthorize("hasRole('超级管理员')")
     @RequestMapping("/menu")
     public String menuPage(){
         return "menu-maintain";
