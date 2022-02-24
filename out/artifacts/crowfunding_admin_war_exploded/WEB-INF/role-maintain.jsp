@@ -8,6 +8,7 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
 <html lang="zh-CN">
 <%@ include file="include-head.jsp" %>
 <link rel="stylesheet" href="./static/css/pagination.css"/>
@@ -235,45 +236,48 @@
                     </button>
                     <br>
                     <hr style="clear:both;">
-                    <div class="table-responsive">
-                        <table class="table  table-bordered">
-                            <thead>
-                            <tr>
-                                <th width="30">#</th>
-                                <th width="30"><input id="summaryBox" type="checkbox"></th>
-                                <th>名称</th>
-                                <th width="100">操作</th>
-                            </tr>
-                            </thead>
-                            <tbody id="rolePageBody">
-                            <tr>
-                                <td></td>
-                                <td>
-                                    <input type="checkbox" class="itemBox">
-                                </td>
-                                <td></td>
-                                <td>
-                                    <button type="button" class="btn btn-success btn-xs">
-                                        <i class=" glyphicon glyphicon-check"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-xs pencilBtn">
-                                        <i class=" glyphicon glyphicon-pencil"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-danger btn-xs removeBtn">
-                                        <i class=" glyphicon glyphicon-remove"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <td colspan="6" align="center">
-                                    <div id="Pagination" class="pagination"><!-- 这里显示分页 --></div>
-                                </td>
-                            </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                    <security:authorize access="hasRole('角色管理测试员') or hasRole('超级管理员')">
+                        <div class="table-responsive">
+                            <table class="table  table-bordered">
+                                <thead>
+                                <tr>
+                                    <th width="30">#</th>
+                                    <th width="30"><input id="summaryBox" type="checkbox"></th>
+                                    <th>名称</th>
+                                    <th width="100">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody id="rolePageBody">
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <input type="checkbox" class="itemBox">
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <button type="button" class="btn btn-success btn-xs">
+                                            <i class=" glyphicon glyphicon-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-xs pencilBtn">
+                                            <i class=" glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-xs removeBtn">
+                                            <i class=" glyphicon glyphicon-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <td colspan="6" align="center">
+                                        <div id="Pagination" class="pagination"><!-- 这里显示分页 --></div>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </security:authorize>
+
                 </div>
             </div>
         </div>

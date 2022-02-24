@@ -8,6 +8,7 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security" %>
 <html lang="zh-CN">
 <%@ include file="include-head.jsp" %>
 <link rel="stylesheet" href="./static/css/pagination.css">
@@ -61,9 +62,10 @@
                     <button type="button" class="btn btn-primary" style="float:right;" onclick="window.location.href='http://localhost:8080/admin/add'"><i class="glyphicon glyphicon-plus"></i> 新增</button>
                     <br>
                     <hr style="clear:both;">
-                    <div class="table-responsive">
-                        <table class="table  table-bordered">
-                            <thead>
+                    <security:authorize access="hasRole('用户管理测试员') or hasRole('超级管理员')">
+                        <div class="table-responsive">
+                            <table class="table  table-bordered">
+                                <thead>
                                 <tr>
                                     <th width="30">#</th>
                                     <th width="30"><input type="checkbox"></th>
@@ -72,8 +74,8 @@
                                     <th>邮箱地址</th>
                                     <th width="100">操作</th>
                                 </tr>
-                            </thead>
-                            <tbody>
+                                </thead>
+                                <tbody>
                                 <c:if test="${empty adminPageInfo.list}">
                                     <tr>
                                         <td colspan="6" style="text-align: center">抱歉！没有查询到相关数据！</td>
@@ -102,16 +104,18 @@
                                         </tr>
                                     </c:forEach>
                                 </c:if>
-                            </tbody>
-                            <tfoot>
+                                </tbody>
+                                <tfoot>
                                 <tr>
                                     <td colspan="6" align="center">
                                         <div id="Pagination" class="pagination"><!-- 这里显示分页 --></div>
                                     </td>
                                 </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </security:authorize>
+
                 </div>
             </div>
         </div>
