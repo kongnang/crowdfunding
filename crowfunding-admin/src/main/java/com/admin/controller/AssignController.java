@@ -104,8 +104,8 @@ public class AssignController {
                                  @RequestParam("pageNum")Integer pageNum,
                                  ModelMap modelMap){
         // 查找已分配角色和未分配角色
-        List<Role> assignedRole = roleService.getAssignedRole(adminId);
-        List<Role> unassignedRole = roleService.getUnassignedRole(adminId);
+        List<Role> assignedRole = roleService.selectAssignedRole(adminId);
+        List<Role> unassignedRole = roleService.selectUnassignedRole(adminId);
 
         // 存入模型
         modelMap.addAttribute("assignedRole",assignedRole);
