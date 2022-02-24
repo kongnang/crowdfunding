@@ -17,4 +17,6 @@ public interface AuthService {
     int deleteRoleAuthRelationship(Integer roleId);
 
     int insertRoleAuthRelationship(@Param("roleId")Integer roleId, @Param("authIdList")List<Integer> authId);
+
+    List<Auth> selectAssignedAuthByAdminId(Integer adminId);
 }

@@ -21,4 +21,6 @@ public interface AdminMapper {
     int deleteAdminRoleRelationship(Integer adminId);
 
     int insertAdminRoleRelationship(@Param("adminId")Integer adminId,@Param("roleIdList") List<Integer> roleIdList);
+
+    Admin selectByAdminAcc(String adminAcc);
 }

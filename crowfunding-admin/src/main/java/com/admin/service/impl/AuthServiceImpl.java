@@ -18,6 +18,16 @@ public class AuthServiceImpl implements AuthService {
     private AuthMapper authMapper;
 
     /**
+     * 通过adminId查找已分配的auth
+     * @param adminId
+     * @return
+     */
+    @Override
+    public List<Auth> selectAssignedAuthByAdminId(Integer adminId) {
+        return authMapper.selectAssignedAuthByAdminId(adminId);
+    }
+
+    /**
      * 建立新的角色权限关系
      * @param roleId
      * @param authId

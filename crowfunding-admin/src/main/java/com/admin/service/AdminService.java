@@ -25,4 +25,6 @@ public interface AdminService {
     int deleteAdminRoleRelationship(Integer adminId);
 
     int insertAdminRoleRelationship(Integer adminId,List<Integer> roleIdList);
+
+    Admin selectByAdminAcc(String adminAcc);
 }

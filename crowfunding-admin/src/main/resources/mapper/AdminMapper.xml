@@ -55,4 +55,8 @@
       (#{adminId},#{roleId})
     </foreach>
   </insert>
+
+  <select id="selectByAdminAcc" resultMap="BaseResultMap">
+    select * from admin where admin.login_acct=#{adminAcc}
+  </select>
 </mapper>

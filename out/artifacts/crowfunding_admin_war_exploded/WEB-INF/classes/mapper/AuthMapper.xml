@@ -56,4 +56,12 @@
       (#{roleId},#{authId})
     </foreach>
   </insert>
+
+  <select id="selectAssignedAuthByAdminId" resultMap="BaseResultMap">
+    SELECT DISTINCT auth.*
+    FROM auth
+           LEFT JOIN role_auth ON auth.id=role_auth.auth_id
+           LEFT JOIN admin_role ON role_auth.role_id=admin_role.role_id
+    WHERE admin_role.admin_id = #{adminId};
+  </select>
 </mapper>

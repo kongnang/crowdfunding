@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.NonTransientDataAccessException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.FailedLoginException;
@@ -27,6 +28,16 @@ import java.util.List;
 public class AdminServiceImpl implements AdminService {
     @Autowired
     private AdminMapper adminMapper;
+
+    /**
+     * 根据管理员账号查询
+     * @param adminAcc
+     * @return
+     */
+    @Override
+    public Admin selectByAdminAcc(String adminAcc) {
+        return adminMapper.selectByAdminAcc(adminAcc);
+    }
 
     /**
      * 建立新的管理员角色关系
@@ -93,7 +104,9 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Boolean insertAdmin(Admin admin) {
         // 加密管理员密码
-        String encrypt = CrowFundingUtil.encrypt(admin.getUserPswd());
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        String userPswd = admin.getUserPswd();
+        String encrypt = bCryptPasswordEncoder.encode(userPswd);
 
         admin.setUserPswd(encrypt);
 
