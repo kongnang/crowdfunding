@@ -574,11 +574,11 @@ web.xml文件放在src/main/web/WEB-INF
 <context:component-scan base-package="com.admin.controller"/>
 
 <!-- 配置视图解析器 -->
-<bean id="vireResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+<bean id="vieResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
     <!--视图前缀-->
-    <property name="prefix" value="/"/>
+    <property name="prefix" value="/WEB-INF/"/>
     <!--视图后缀-->
-    <property name="suffix" value=".html"/>
+    <property name="suffix" value=".jsp"/>
 </bean>
 
 <!--
@@ -1835,6 +1835,243 @@ public ResultEntity<String> saveRoleAuthRelationship(@RequestBody Map<String,Lis
         authService.insertRoleAuthRelationship(roleId,authIdList);
     }
     return ResultEntity.successWithoutData();
+}
+```
+
+### 6.3 引入Spring Security
+
+#### 6.3.1 引入依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-web</artifactId>
+    <version>5.5.2</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-config</artifactId>
+    <version>5.5.2</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-taglibs</artifactId>
+    <version>5.5.2</version>
+</dependency>
+```
+
+#### 6.3.2 配置Filter
+
+```xml
+<filter>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+#### 6.3.3 解决NoSuchBeanDefinitionException异常
+
+原因：
+
+​	当Tomcat启动读取web.xml时，**先加载ContextLoaderListener**创建Spring的IOC容器，然后**加载Filter**，查找Filter中DelegatingFilterProxy的bean。这时候Spring的IOC容器中并没有这个bean所以抛出异常NoSuchBeanDefinitionException，因为这个bean在**DispatcherServlet**创建的SpringMVC的IOC容器中。
+
+​	如果初始化之后并没有找到IOC容器就会在第一次请求时查找，这时候如果找到IOC容器则会找到两个，一个是Spring的IOC容器，一个是SpringMVC的IOC容器，但是Filter只会去父容器找，也就是Spring的IOC容器。如果第一次请求找不到IOC容器就会抛异常。
+
+![](../img/admin-018.png)
+
+解决方式：
+
+​	创建applicationContext.xml，将所有的spring配置文件包括spring mvc的配置文件放入，这样一来，在ContextLoaderListener创建的Spring IOC容器中就包含了DelegatingFilterProxy这个bean。
+
+#### 6.3.4 创建CrowdfundingSecurityConfig.java
+
+```java
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled=true)
+public class CrowdfundingSecurityConfig extends WebSecurityConfigurerAdapter {
+}
+```
+
+### 6.4 数据库登录
+
+<img src="../img/admin-019.jpg" style="zoom:80%;" />
+
+#### 6.4.1 根据用户名查询Admin对象
+
+```xml
+<select id="selectByAdminAcc" resultMap="BaseResultMap">
+    select * from admin where admin.login_acct=#{adminAcc}
+</select>
+```
+
+#### 6.4.2 根据adminId查询Auth对象
+
+```xml
+<select id="selectAssignedAuthByAdminId" resultMap="BaseResultMap">
+    SELECT DISTINCT auth.*
+    FROM auth
+    LEFT JOIN role_auth ON auth.id=role_auth.auth_id
+    LEFT JOIN admin_role ON role_auth.role_id=admin_role.role_id
+    WHERE admin_role.admin_id = #{adminId};
+</select>
+```
+
+#### 6.4.3 创建SecurityAdmin
+
+由于**User**对象只能对账号，密码和权限进行封装，不能封装其它属性。所以创建SecurityAdmin作为**User**的子类，使用get()方法可以得到Admin对象的其它属性。
+
+```java
+public class SecurityAdmin extends User {
+
+    private Admin originalAdmin;
+
+    public SecurityAdmin(Admin originalAdmin, List<GrantedAuthority> authorities) {
+        super(originalAdmin.getUserName(), originalAdmin.getUserPswd(), authorities);
+
+        this.originalAdmin = originalAdmin;
+
+        // 擦除原始对象中的密码，避免密码通过security标签的principal得到
+        originalAdmin.setUserPswd(null);
+    }
+
+    // 通过此方法得到Admin对象
+    public Admin getOriginalAdmin() {
+        return originalAdmin;
+    }
+}
+```
+
+#### 6.4.4 创建CrowdfundingUserDetailsService
+
+```java
+@Component
+public class CrowdfundingUserDetailsService implements UserDetailsService {
+    @Autowired
+    private AdminService adminService;
+    @Autowired
+    private RoleService roleService;
+    @Autowired
+    private AuthService authService;
+
+    @Override
+    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        // 根据用户名得到Admin对象
+        Admin admin = adminService.selectByAdminAcc(userName);
+        // 得到adminId
+        Integer adminId = admin.getId();
+        // 根据adminId查询已分配的角色和权限对象
+        List<Role> assignedRoles = roleService.selectAssignedRole(adminId);
+        List<Auth> assignedAuths = authService.selectAssignedAuthByAdminId(adminId);
+        // 创建列表存储角色和权限
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        // 添加角色
+        for(Role role : assignedRoles){
+            String roleName = "ROLE_" + role.getName();
+            SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority(roleName);
+            authorities.add(grantedAuthority);
+        }
+        // 添加权限
+        for(Auth auth : assignedAuths){
+            String authName = auth.getName();
+            SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority(authName);
+            authorities.add(grantedAuthority);
+        }
+        // 封装
+        return new SecurityAdmin(admin,authorities);
+    }
+}
+```
+
+#### 6.4.5 在配置类中使用CrowdfundingUserDetailsService
+
+```java
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled=true)
+public class CrowdfundingSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private CrowdfundingUserDetailsService userDetailsService;
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder())
+        ;
+    }
+    
+    @Override
+    protected void configure(HttpSecurity httpSecurity) throws Exception {
+        
+                ...
+       
+    }
+}
+```
+
+### 6.5 权限控制
+
+| 用户     | 角色           | 权限            |
+| -------- | -------------- | --------------- |
+| admin    | 超级管理员     | 所有            |
+| usertest | 用户管理测试员 | 用户-查询、新增 |
+| roletest | 角色管理测试员 | 角色-查询、新增 |
+| 其它     | 游客           | 无              |
+
+- **增/删/改**功能，有**add/delete/update**权限才可使用。
+
+  - 使用`.hasAuthority("xxx")`
+  - 使用`@PreAuthorize("hasRole('xxx')")`
+
+- **查**功能，只有超级管理员和管理测试员可以使用，其它角色进入页面后无数据显示。
+
+  - 通过标签进行页面元素的控制
+
+    ```xml
+    <security:authorize access="hasRole('用户管理测试员') or hasRole('超级管理员')"></security:authorize>
+    ```
+
+```java
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled=true)
+public class CrowdfundingSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    ...
+
+
+    @Override
+    protected void configure(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.authorizeRequests()
+                .antMatchers("/index.jsp","/login","/static/**","/WEB-INF/**").permitAll()
+            // 以下页面，有对应权限才可以访问
+                .antMatchers("/add").hasAuthority("user:add")
+                .antMatchers("/delete/**").hasAuthority("user:delete")
+                .antMatchers("/update").hasAuthority("user:update")
+                .antMatchers("/role/save.json").hasAuthority("role:add")
+                .antMatchers("/role/delete.json").hasAuthority("role:delete")
+                .antMatchers("/role/update.json").hasAuthority("role:update")
+                .anyRequest().authenticated()
+                .and()
+                .csrf().disable()
+                .formLogin().loginPage("/index.jsp").loginProcessingUrl("/security/do/login")
+                .usernameParameter("adminAcc").passwordParameter("adminPwd")
+                .defaultSuccessUrl("/main")
+                .and()
+                .logout().logoutUrl("/security/do/logout").logoutSuccessUrl("/index.jsp")
+                .and()
+                .exceptionHandling().accessDeniedHandler(new AccessDeniedHandler() {
+                    @Override
+                    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                        request.setAttribute("exception",new Exception(CrowFundingConstant.MESSAGE_ACCESS_DENIED));
+                        request.getRequestDispatcher("/WEB-INF/error.jsp").forward(request,response);
+                    }
+                })
+        ;
+    }
 }
 ```
 
