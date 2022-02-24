@@ -19,19 +19,20 @@
     <!-- 启用注解驱动-->
     <mvc:annotation-driven/>
 
-    <!-- 注册拦截器-->
-    <mvc:interceptors>
-        <mvc:interceptor>
-            <!-- 拦截多层路径-->
-            <mvc:mapping path="/**"/>
-            <!-- 不拦截的路径-->
-            <mvc:exclude-mapping path="/"/>
-            <mvc:exclude-mapping path="/login"/>
-            <mvc:exclude-mapping path="/logout"/>
-            <!-- 配置拦截器类-->
-            <bean class="com.admin.interceptor.LoginInterceptor"/>
-        </mvc:interceptor>
-    </mvc:interceptors>
+    <!-- 使用SpringSecurity自定义拦截器-->
+<!--    &lt;!&ndash; 注册拦截器&ndash;&gt;-->
+<!--    <mvc:interceptors>-->
+<!--        <mvc:interceptor>-->
+<!--            &lt;!&ndash; 拦截多层路径&ndash;&gt;-->
+<!--            <mvc:mapping path="/**"/>-->
+<!--            &lt;!&ndash; 不拦截的路径&ndash;&gt;-->
+<!--            <mvc:exclude-mapping path="/"/>-->
+<!--            <mvc:exclude-mapping path="/login"/>-->
+<!--            <mvc:exclude-mapping path="/logout"/>-->
+<!--            &lt;!&ndash; 配置拦截器类&ndash;&gt;-->
+<!--            <bean class="com.admin.interceptor.LoginInterceptor"/>-->
+<!--        </mvc:interceptor>-->
+<!--    </mvc:interceptors>-->
 
     <!-- 配置视图解析器 -->
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
