@@ -49,7 +49,7 @@
     .exception相当于request.getAttribute("exception")
     .message相当于exception.getMessge()
     -->
-    <h3>${requestScope.exception.message}</h3>
+    <h3 align="center">${requestScope.exception.message}</h3>
     <button style="width: 300px;margin: 0px auto 0px auto;" class="btn btn-lg btn-success btn-block">返回刚才页面</button>
 </div>
 </body>
