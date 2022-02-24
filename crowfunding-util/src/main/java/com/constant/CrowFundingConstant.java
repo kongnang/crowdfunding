@@ -10,6 +10,7 @@ public class CrowFundingConstant {
     public static final String MESSAGE_LOGIN_ACCOUNT_ALREADY_IN_USE = "此账号已被使用！";
     public static final String MESSAGE_ACCESS_FORBIDEN = "请登录以后再访问！";
     public static final String MESSAGE_STRING_INVALIDATE = "字符串不合法！";
+    public static final String MESSAGE_ACCESS_DENIED = "拒绝访问！";
 
     public static final String ADAMIN_LOGIN_NAME = "admin";
     public static final String USER_MAINTAIN_PAGE = "adminPageInfo";
