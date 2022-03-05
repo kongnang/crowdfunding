@@ -38,7 +38,7 @@ public class CrowdfundingSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeRequests()
-                .antMatchers("/index.jsp","/login","/static/**","/WEB-INF/**").permitAll()
+                .antMatchers("/login","/static/**","/WEB-INF/**").permitAll()
                 .antMatchers("/add").hasAuthority("user:add")
                 .antMatchers("/delete/**").hasAuthority("user:delete")
                 .antMatchers("/update").hasAuthority("user:update")
@@ -48,11 +48,11 @@ public class CrowdfundingSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable()
-                .formLogin().loginPage("/index.jsp").loginProcessingUrl("/security/do/login")
+                .formLogin().loginPage("/login").loginProcessingUrl("/security/do/login")
                 .usernameParameter("adminAcc").passwordParameter("adminPwd")
                 .defaultSuccessUrl("/main")
                 .and()
-                .logout().logoutUrl("/security/do/logout").logoutSuccessUrl("/index.jsp")
+                .logout().logoutUrl("/security/do/logout").logoutSuccessUrl("/login")
                 .and()
                 .exceptionHandling().accessDeniedHandler(new AccessDeniedHandler() {
                     @Override

@@ -210,7 +210,7 @@ public class AdminController{
      * 管理员登录界面
      * @return
      */
-    @RequestMapping(value = "/login",method = RequestMethod.GET)
+    @RequestMapping(value = {"/login","/"},method = RequestMethod.GET)
     public String adminLoginPage(){
         return "admin-login";
     }

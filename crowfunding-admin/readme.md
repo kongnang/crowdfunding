@@ -849,26 +849,25 @@ public ModelAndView resloveLoginException(LoginFailedException loginFailedExcept
 
 ```java
 /**
-* 管理员提交账号密码，之后跳转到主页面
-* @param adminAcc
-* @param adminPwd
-* @param session
-* @return
-*/
-@RequestMapping(value = "/login",method = RequestMethod.POST)
-public String adminLogin(@RequestParam("adminAcc")String adminAcc,
-                         @RequestParam("adminPwd")String adminPwd,
-                         HttpSession session){
-    // 传入账号密码与数据库进行对比
-    Admin admin = adminService.selectByAdminAccAndPwd(adminAcc, adminPwd);
-    // 将管理员信息放入session域中
-    session.setAttribute(CrowFundingConstant.ADAMIN_LOGIN_NAME,admin);
-
-    // TODO 将sout换成logger.info
-    System.out.println(admin);
-
-    return "redirect:/main";
-}
+     * 该方法已遗弃，使用spring security来代替该方法
+     *
+     * 管理员提交账号密码，之后跳转到主页面
+     * @param adminAcc
+     * @param adminPwd
+     * @param session
+     * @return
+     */
+//    @RequestMapping(value = "/login",method = RequestMethod.POST)
+//    public String adminLogin(@RequestParam("adminAcc")String adminAcc,
+//                             @RequestParam("adminPwd")String adminPwd,
+//                             HttpSession session){
+//        // 传入账号密码与数据库进行对比
+//        Admin admin = adminService.selectByAdminAccAndPwd(adminAcc, adminPwd);
+//        // 将管理员信息放入session域中
+//        session.setAttribute(CrowFundingConstant.ADAMIN_LOGIN_NAME,admin);
+//
+//        return "redirect:/main";
+//    }
 
 /**
 * 管理员登录界面
@@ -926,7 +925,7 @@ public String adminLogOut(HttpSession session){
 
 拦截未登录用户
 
-拦截器类：
+拦截器类：此类遗弃，使用SpringSecurity代替
 
 ```java
 public class LoginInterceptor implements HandlerInterceptor {
@@ -2046,8 +2045,7 @@ public class CrowdfundingSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeRequests()
-                .antMatchers("/index.jsp","/login","/static/**","/WEB-INF/**").permitAll()
-            // 以下页面，有对应权限才可以访问
+                .antMatchers("/login","/static/**","/WEB-INF/**").permitAll()
                 .antMatchers("/add").hasAuthority("user:add")
                 .antMatchers("/delete/**").hasAuthority("user:delete")
                 .antMatchers("/update").hasAuthority("user:update")
@@ -2057,11 +2055,11 @@ public class CrowdfundingSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable()
-                .formLogin().loginPage("/index.jsp").loginProcessingUrl("/security/do/login")
+                .formLogin().loginPage("/login").loginProcessingUrl("/security/do/login")
                 .usernameParameter("adminAcc").passwordParameter("adminPwd")
                 .defaultSuccessUrl("/main")
                 .and()
-                .logout().logoutUrl("/security/do/logout").logoutSuccessUrl("/index.jsp")
+                .logout().logoutUrl("/security/do/logout").logoutSuccessUrl("/login")
                 .and()
                 .exceptionHandling().accessDeniedHandler(new AccessDeniedHandler() {
                     @Override
