@@ -1,0 +1,26 @@
+server:
+  port: 80
+
+spring:
+  application:
+    name: gateway-zuul80
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:7001/eureka
+  instance:
+    instance-id: zuul
+    prefer-ip-address: true
+
+zuul:
+#  ignored-services: "*"  # 忽略多个
+  sensitive-headers: "*"  # 在Zuul 向其他微服务重定向时保持原本头信息（请求头、响应头）
+  host:
+    connect-timeout-millis: 3000
+    socket-timeout-millis: 3000
+  routes:
+    consumer:
+      service-id: auth-consumer
+      path: /**
+
