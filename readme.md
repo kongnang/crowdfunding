@@ -14,10 +14,14 @@
 
 后台管理员系统使用**ssm**单一架构
 
-前台管理员系统使用**Spring Boot,Spring Cloud**分布式架构
+前台管理员系统使用**SpringBoot**分布式架构
 
-## 3 项目环境
+### 单一架构与分布式架构
 
-- jdk 11
-- maven 3.8.3
-- git 2.33.1
+- 单一架构一般指一个工程运行在一个Tomcat上
+
+  <img src="./img/002.jpg" style="zoom:80%;" />
+
+- 分布式架构一般指一个项目分成多个模块工程，运行在各自的Tomcat上
+
+  <img src="./img/003.jpg"  />
