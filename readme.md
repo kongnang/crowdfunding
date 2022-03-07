@@ -1,4 +1,4 @@
-# Crow Funding众筹项目
+# Crowd Funding众筹项目
 
 ## 1 项目介绍
 
