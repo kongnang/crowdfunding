@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.member</groupId>
-    <artifactId>crowfunding-member</artifactId>
+    <artifactId>crowdfunding-member</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>eureka-server7001</module>
@@ -83,8 +83,8 @@
             </dependency>
             <!-- util工具模块-->
             <dependency>
-                <groupId>groupId</groupId>
-                <artifactId>crowfunding-util</artifactId>
+                <groupId>com.project</groupId>
+                <artifactId>crowdfunding-util</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
         </dependencies>
