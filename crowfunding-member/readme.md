@@ -417,7 +417,38 @@ public class ServiceProviderMain8001 {
 
 #### 创建service、controller
 
-...
+```java
+@Service
+public class MemberServiceImpl implements MemberService {
+
+    @Autowired
+    private MemberMapper memberMapper;
+    
+    @Override
+    public Member selectByPrimaryKey(Integer id) {
+        return memberMapper.selectByPrimaryKey(id);
+    }
+}
+```
+
+```java
+@RestController
+public class MemberProviderController {
+    @Autowired
+    private MemberService memberService;
+    
+    @RequestMapping("/provider/member/get/{id}")
+    public ResultEntity<Member> getById(@PathVariable("id") Integer id){
+        try {
+            Member member = memberService.selectByPrimaryKey(id);
+            return ResultEntity.successWithData(member);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultEntity.fail(e.getMessage());
+        }
+    }
+}
+```
 
 ### 1.7 authentication-consumer9001模块
 
@@ -502,7 +533,9 @@ public class AuthenticationConsumerMain9001 {
 }
 ```
 
-#### MemberFeignService
+#### 创建Service
+
+使用OpenFeign实现远程调用
 
 ```java
 @FeignClient(value = "service-provider")
@@ -512,7 +545,7 @@ public interface MemberFeignService {
 }
 ```
 
-#### AuthenticationConsumerController
+#### 创建controller
 
 ```java
 @Controller
@@ -589,7 +622,7 @@ zuul:
     socket-timeout-millis: 3000
   routes:
     consumer:
-      service-id: auth-consumer
+      service-id: auth-consumer # localhost:80/auth-consumer/xxx
       path: /**
 ```
 
@@ -605,5 +638,19 @@ public class ZuulMain80 {
 }
 ```
 
+### 1.9 测试
 
+启动service-eureka7001,service-provider8001,authentication-consumer9001
+
+测试
+
+http://localhost:8001/provider/member/get/1
+
+http://localhost:9001/get/1
+
+启动gateway-zuul80
+
+测试
+
+http://localhost:80/auth-consumer/get/1
 
