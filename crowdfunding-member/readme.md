@@ -86,7 +86,7 @@ pom.xml
             </dependency>
             <!-- util工具模块-->
             <dependency>
-                <groupId>groupId</groupId>
+                <groupId>com.project</groupId>
                 <artifactId>crowdfunding-util</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
@@ -343,7 +343,7 @@ public class MemberGenerator {
     </dependency>
     <!-- util工具模块-->
     <dependency>
-        <groupId>groupId</groupId>
+        <groupId>com.project</groupId>
         <artifactId>crowdfunding-util</artifactId>
     </dependency>
     <!-- devtool-->
@@ -483,7 +483,7 @@ public class MemberProviderController {
         <optional>true</optional>
     </dependency>
     <dependency>
-        <groupId>groupId</groupId>
+        <groupId>com.project</groupId>
         <artifactId>crowdfunding-util</artifactId>
     </dependency>
     <!-- 实体类模块-->

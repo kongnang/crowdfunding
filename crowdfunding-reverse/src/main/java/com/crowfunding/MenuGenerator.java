@@ -1,4 +1,4 @@
-package com.crowfunding;
+package com.crowdfunding;
 
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.Configuration;
@@ -18,7 +18,7 @@ public class MenuGenerator {
         try {
             List<String> warnings = new ArrayList<String>();
             boolean overwrite = true;
-            File configFile = new File("./crowfunding-reverse/src/main/resources/generatorConfigMenu.xml");
+            File configFile = new File("./crowdfunding-reverse/src/main/resources/generatorConfigMenu.xml");
             ConfigurationParser cp = new ConfigurationParser(warnings);
             Configuration config = cp.parseConfiguration(configFile);
             DefaultShellCallback callback = new DefaultShellCallback(overwrite);

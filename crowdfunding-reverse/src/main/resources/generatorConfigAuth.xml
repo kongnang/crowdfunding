@@ -5,16 +5,16 @@
     <context id="simple" targetRuntime="MyBatis3Simple">
         <!--         nullCatalogMeansCurrent=true 解决生成的实体类与数据库表不一样的问题-->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/crowfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
+                        connectionURL="jdbc:mysql://localhost:3306/crowdfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
                         userId="root"
                         password="bruce123" />
 
         <!--实体类-->
-        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowfunding-admin/src/main/java"/>
+        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowdfunding-admin/src/main/java"/>
         <!--映射文件-->
-        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowfunding-admin/src/main"/>
+        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowdfunding-admin/src/main"/>
         <!--接口类-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowfunding-admin/src/main/java"/>
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowdfunding-admin/src/main/java"/>
 
         <table tableName="auth" />
     </context>
