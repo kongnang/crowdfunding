@@ -89,11 +89,11 @@ ALTER TABLE `admin` ADD UNIQUE INDEX (`login_acct`);
                         password="bruce123"/>
 
         <!--实体类-->
-        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowfunding-admin/src/main/java"/>
+        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowdfunding-admin/src/main/java"/>
         <!--映射文件-->
-        <sqlMapGenerator targetPackage="/resources" targetProject="./crowfunding-admin/src/main"/>
+        <sqlMapGenerator targetPackage="/resources" targetProject="./crowdfunding-admin/src/main"/>
         <!--接口类-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowfunding-admin/src/main/java"/>
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowdfunding-admin/src/main/java"/>
 
         <table tableName="admin" />
     </context>
@@ -108,7 +108,7 @@ public class Generator {
         try {
             List<String> warnings = new ArrayList<String>();
             boolean overwrite = true;
-            File configFile = new File("./crowfunding-common/reverse/src/main/resources/generatorConfig.xml");
+            File configFile = new File("./crowdfunding-common/reverse/src/main/resources/generatorConfig.xml");
             ConfigurationParser cp = new ConfigurationParser(warnings);
             Configuration config = cp.parseConfiguration(configFile);
             DefaultShellCallback callback = new DefaultShellCallback(overwrite);
@@ -773,7 +773,7 @@ public class ExceptionResolver {
 public static String encrypt(String source){
     // 1.判断传入的字符串是否有效
     if(source == null || source.length() == 0){
-        throw new LoginFailedException(CrowFundingConstant.MESSAGE_STRING_INVALIDATE);
+        throw new LoginFailedException(crowdfundingConstant.MESSAGE_STRING_INVALIDATE);
     }
 
     try {
@@ -869,7 +869,7 @@ public ModelAndView resloveLoginException(LoginFailedException loginFailedExcept
 //        // 传入账号密码与数据库进行对比
 //        Admin admin = adminService.selectByAdminAccAndPwd(adminAcc, adminPwd);
 //        // 将管理员信息放入session域中
-//        session.setAttribute(CrowFundingConstant.ADAMIN_LOGIN_NAME,admin);
+//        session.setAttribute(crowdfundingConstant.ADAMIN_LOGIN_NAME,admin);
 //
 //        return "redirect:/main";
 //    }
@@ -897,12 +897,12 @@ public String adminLoginPage(){
 @Override
 public Admin selectByAdminAccAndPwd(String adminAccount, String adminPassword) {
     // 将明文进行加密
-    String encrypt = CrowFundingUtil.encrypt(adminPassword);
+    String encrypt = crowdfundingUtil.encrypt(adminPassword);
     // 将账号和密文与数据库中的管理员账号对比
     Admin admin = adminMapper.selectByAdminAccAndPwd(adminAccount, encrypt);
 
     if(admin == null){
-        throw new LoginFailedException(CrowFundingConstant.MESSAGE_LOGIN_FAILED);
+        throw new LoginFailedException(crowdfundingConstant.MESSAGE_LOGIN_FAILED);
     }
 
     return admin;
@@ -939,11 +939,11 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         // 获取Session域中的对象
         HttpSession session = request.getSession();
-        Admin admin = (Admin) session.getAttribute(CrowFundingConstant.ADAMIN_LOGIN_NAME);
+        Admin admin = (Admin) session.getAttribute(crowdfundingConstant.ADAMIN_LOGIN_NAME);
 
         // 若Session域中取得的对象为null，抛出登录异常
         if(admin == null){
-            throw new LoginFailedException(CrowFundingConstant.MESSAGE_ACCESS_FORBIDEN);
+            throw new LoginFailedException(crowdfundingConstant.MESSAGE_ACCESS_FORBIDEN);
         }
 
         return true;
@@ -1019,9 +1019,9 @@ public ModelAndView resloveAccessForbiddenException(AccessForbiddenException acc
 
 ### 2.11 注意
 
-​	本项目中由于crowfunding-admin模块和crowfunding-util没有共同的父模块，所有当启动Tomcat服务器后找不到crowfunding-util模块中的类，此时报错：`NoClassDefFoundException`，`ClassNotFoundException`。
+​	本项目中由于crowdfunding-admin模块和crowdfunding-util没有共同的父模块，所有当启动Tomcat服务器后找不到crowdfunding-util模块中的类，此时报错：`NoClassDefFoundException`，`ClassNotFoundException`。
 
-​	解决方式：在当前工程目录下的`out\artifacts\crowfunding_admin_war_exploded\WEB-INF\classes\com`下添加com.util包下的所有编译文件。或者将当前工程作为crowfunding-admin和crowfunding-util的父模块。
+​	解决方式：在当前工程目录下的`out\artifacts\crowdfunding_admin_war_exploded\WEB-INF\classes\com`下添加com.util包下的所有编译文件。或者将当前工程作为crowdfunding-admin和crowdfunding-util的父模块。
 
 ## 3 管理员维护功能
 
@@ -1073,7 +1073,7 @@ public String adminInfoResult(@RequestParam(value ="keyword",defaultValue = "")S
 
     // 将查询结果存入ModelMap
     // 使用ModelMap获取管理员信息显示在jsp页面
-    modelMap.addAttribute(CrowFundingConstant.USER_MAINTAIN_PAGE,pageInfo);
+    modelMap.addAttribute(crowdfundingConstant.USER_MAINTAIN_PAGE,pageInfo);
 
     return "admin-maintain";
 }
@@ -1108,7 +1108,7 @@ public ModelAndView resloveLoginAcctAlreadyInUseException(LoginFailedException l
 @Override
 public Boolean insertAdmin(Admin admin) {
     // 加密管理员密码
-    String encrypt = CrowFundingUtil.encrypt(admin.getUserPswd());
+    String encrypt = crowdfundingUtil.encrypt(admin.getUserPswd());
 
     admin.setUserPswd(encrypt);
 
@@ -1119,7 +1119,7 @@ public Boolean insertAdmin(Admin admin) {
     }catch (Exception e){
         // 若当前异常类是DuplicateKeyException的实例对象，说明账号名重复
         if(e instanceof DuplicateKeyException){
-            throw new LoginAcctAlreadyInUseException(CrowFundingConstant.MESSAGE_LOGIN_ACCOUNT_ALREADY_IN_USE);
+            throw new LoginAcctAlreadyInUseException(crowdfundingConstant.MESSAGE_LOGIN_ACCOUNT_ALREADY_IN_USE);
         }
         // 为了不掩盖错误仍然抛出当前异常
         throw e;
@@ -1329,16 +1329,16 @@ CREATE TABLE `role` (
     <context id="simple" targetRuntime="MyBatis3Simple">
                 <!--         nullCatalogMeansCurrent=true 解决生成的实体类与数据库表不一样的问题-->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/crowfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
+                        connectionURL="jdbc:mysql://localhost:3306/crowdfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
                         userId="root"
                         password="bruce123" />
 
         <!--实体类-->
-        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowfunding-admin/src/main/java"/>
+        <javaModelGenerator targetPackage="com.admin.entity" targetProject="./crowdfunding-admin/src/main/java"/>
         <!--映射文件-->
-        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowfunding-admin/src/main"/>
+        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowdfunding-admin/src/main"/>
         <!--接口类-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowfunding-admin/src/main/java"/>
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.admin.mapper" targetProject="./crowdfunding-admin/src/main/java"/>
 
         <table tableName="role" />
     </context>
@@ -1351,7 +1351,7 @@ public class RoleGenerator {
         try {
             List<String> warnings = new ArrayList<String>();
             boolean overwrite = true;
-            File configFile = new File("./crowfunding-reverse/src/main/resources/generatorConfigRole.xml");
+            File configFile = new File("./crowdfunding-reverse/src/main/resources/generatorConfigRole.xml");
             ConfigurationParser cp = new ConfigurationParser(warnings);
             Configuration config = cp.parseConfiguration(configFile);
             DefaultShellCallback callback = new DefaultShellCallback(overwrite);
@@ -2069,7 +2069,7 @@ public class CrowdfundingSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().accessDeniedHandler(new AccessDeniedHandler() {
                     @Override
                     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-                        request.setAttribute("exception",new Exception(CrowFundingConstant.MESSAGE_ACCESS_DENIED));
+                        request.setAttribute("exception",new Exception(crowdfundingConstant.MESSAGE_ACCESS_DENIED));
                         request.getRequestDispatcher("/WEB-INF/error.jsp").forward(request,response);
                     }
                 })

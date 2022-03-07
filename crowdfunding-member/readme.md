@@ -6,7 +6,7 @@
 
 ![](../img/member-001.png)
 
-### 1.2 crowfunding-member父工程
+### 1.2 crowdfunding-member父工程
 
 pom.xml
 
@@ -18,7 +18,7 @@ pom.xml
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.member</groupId>
-    <artifactId>crowfunding-member</artifactId>
+    <artifactId>crowdfunding-member</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -87,7 +87,7 @@ pom.xml
             <!-- util工具模块-->
             <dependency>
                 <groupId>groupId</groupId>
-                <artifactId>crowfunding-util</artifactId>
+                <artifactId>crowdfunding-util</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
         </dependencies>
@@ -204,16 +204,16 @@ create table member(
     <context id="simple" targetRuntime="MyBatis3">
         <!--         nullCatalogMeansCurrent=true 解决生成的实体类与数据库表不一样的问题-->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/crowfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
+                        connectionURL="jdbc:mysql://localhost:3306/crowdfunding?serverTimezone=UTC&amp;nullCatalogMeansCurrent=true"
                         userId="root"
                         password="bruce123" />
 
         <!--实体类-->
-        <javaModelGenerator targetPackage="com.member.entities.po" targetProject="./crowfunding-member/member-entities/src/main/java"/>
+        <javaModelGenerator targetPackage="com.member.entities.po" targetProject="./crowdfunding-member/member-entities/src/main/java"/>
         <!--映射文件-->
-        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowfunding-member/service-provider8001/src/main"/>
+        <sqlMapGenerator targetPackage="/resources/mapper" targetProject="./crowdfunding-member/service-provider8001/src/main"/>
         <!--接口类-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.member.mapper" targetProject="./crowfunding-member/service-provider8001/src/main/java"/>
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.member.mapper" targetProject="./crowdfunding-member/service-provider8001/src/main/java"/>
 
         <table tableName="member" />
     </context>
@@ -226,7 +226,7 @@ public class MemberGenerator {
         try {
             List<String> warnings = new ArrayList<String>();
             boolean overwrite = true;
-            File configFile = new File("./crowfunding-reverse/src/main/resources/generatorConfigMember.xml");
+            File configFile = new File("./crowdfunding-reverse/src/main/resources/generatorConfigMember.xml");
             ConfigurationParser cp = new ConfigurationParser(warnings);
             Configuration config = cp.parseConfiguration(configFile);
             DefaultShellCallback callback = new DefaultShellCallback(overwrite);
@@ -344,7 +344,7 @@ public class MemberGenerator {
     <!-- util工具模块-->
     <dependency>
         <groupId>groupId</groupId>
-        <artifactId>crowfunding-util</artifactId>
+        <artifactId>crowdfunding-util</artifactId>
     </dependency>
     <!-- devtool-->
     <dependency>
@@ -367,7 +367,7 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name:  com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/crowfunding?serverTimezone=UTC&nullCatalogMeansCurrent=true
+    url: jdbc:mysql://localhost:3306/crowdfunding?serverTimezone=UTC&nullCatalogMeansCurrent=true
     username: root
     password: bruce123
   redis:
@@ -484,7 +484,7 @@ public class MemberProviderController {
     </dependency>
     <dependency>
         <groupId>groupId</groupId>
-        <artifactId>crowfunding-util</artifactId>
+        <artifactId>crowdfunding-util</artifactId>
     </dependency>
     <!-- 实体类模块-->
     <dependency>
