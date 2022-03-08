@@ -3,10 +3,11 @@ server:
 
 spring:
   application:
-    name: auth-consumer
+    name: auth
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
+
 
 eureka:
   client:
@@ -17,5 +18,10 @@ eureka:
     service-url:
       defaultZone: http://localhost:7001/eureka
   instance:
-    instance-id: consumer9001
+    instance-id: auth-consumer9001
     prefer-ip-address: true
+
+
+ribbon:
+  eureka:
+    enabled: true

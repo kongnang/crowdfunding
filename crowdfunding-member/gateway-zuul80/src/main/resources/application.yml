@@ -21,6 +21,7 @@ zuul:
     socket-timeout-millis: 3000
   routes:
     consumer:
-      service-id: auth-consumer
+      service-id: auth
       path: /**
+  prefix: /member
 
