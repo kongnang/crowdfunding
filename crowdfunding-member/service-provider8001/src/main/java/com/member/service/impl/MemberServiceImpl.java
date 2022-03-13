@@ -6,6 +6,8 @@ import com.member.mapper.MemberMapper;
 import com.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,10 +16,23 @@ import java.util.List;
  * @create 2022-03-05 21:26
  */
 @Service
+@Transactional(readOnly = true) // 针对查询操作设置事务属性
 public class MemberServiceImpl implements MemberService {
 
     @Autowired
     private MemberMapper memberMapper;
+
+    /**
+     * 根据注册信息创建用户
+     * 在调用该方法前，需要把VO转化为PO
+     * @param record PO
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW,rollbackFor = Exception.class)
+    @Override
+    public int insertSelective(Member record) {
+        return memberMapper.insertSelective(record);
+    }
 
     /**
      * 根据登录账号查询

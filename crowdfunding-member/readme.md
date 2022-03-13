@@ -419,6 +419,7 @@ public class ServiceProviderMain8001 {
 
 ```java
 @Service
+@Transactional(readOnly = true) // 针对查询操作设置事务属性
 public class MemberServiceImpl implements MemberService {
 
     @Autowired
@@ -653,4 +654,379 @@ http://localhost:9001/get/1
 测试
 
 http://localhost:80/auth-consumer/get/1
+
+## 2 用户登录
+
+### 2.1 发送手机验证码功能
+
+#### 2.1.1 redis服务
+
+RedisProviderController
+
+```java
+@RestController
+public class RedisProviderController {
+
+    /**
+     * 指定RedisTemplate的K,V泛型，防止序列化K,V出现\xac\xed\x00\x05t\x00 的情况
+     */
+    @Autowired
+    private RedisTemplate<String,String> redisTemplate;
+
+    @RequestMapping("provider/redis/set/timeout")
+    public ResultEntity<String> setKeyValueTimeout(@RequestParam("key") String key,
+                                           @RequestParam("value") String value,
+                                           @RequestParam("time") Long time,
+                                           @RequestParam("timeUnit")TimeUnit timeunit){
+        try {
+            ValueOperations<String,String> ops = redisTemplate.opsForValue();
+            ops.set(key,value,time,timeunit);
+            return ResultEntity.successWithoutData();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultEntity.fail(e.getMessage());
+        }
+    }
+
+    @RequestMapping("/provider/redis/delete/key")
+    public ResultEntity<String> removeKey(@RequestParam("key") String key){
+        try {
+            redisTemplate.delete(key);
+            return ResultEntity.successWithoutData();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultEntity.fail(e.getMessage());
+        }
+    }
+
+    @RequestMapping("/provider/redis/set/key")
+    public ResultEntity<String> setKyeValue(@RequestParam("key") String key,
+                                            @RequestParam("value") String value){
+        try {
+            ValueOperations<String,String> ops = redisTemplate.opsForValue();
+            ops.set(key,value);
+            return ResultEntity.successWithoutData();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultEntity.fail(e.getMessage());
+        }
+    }
+
+    @RequestMapping("/provider/redis/get/key")
+    public ResultEntity<String> getValue(@RequestParam("key") String key){
+        try {
+            ValueOperations<String,String> ops = redisTemplate.opsForValue();
+            String value = ops.get(key);
+            return ResultEntity.successWithData(value);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultEntity.fail(e.getMessage());
+        }
+    }
+}
+```
+
+#### 2.1.2 发送短信api
+
+发送短信获取验证码的api放在crowfunding-util.util中
+
+```java
+/**
+     *
+     * @param host 短信接口调用的url地址
+     * @param path 具体发送短信功能的地址
+     * @param method 请求方式
+     * @param appcode 你自己的AppCode
+     * @param phone_number 手机号
+     * @param template_id 短信模板id
+     * @return 成功：返回验证码；失败：返回错误信息
+     */
+public static ResultEntity<String> sendShortMessage(String host,
+                                                    String path,
+                                                    String method,
+                                                    String appcode,
+                                                    String phone_number,
+                                                    String template_id){
+    // 生成验证码
+    StringBuilder stringBuilder = new StringBuilder();
+    for(int i=0;i<4;i++){
+        int random =(int)(Math.random()*10);
+        stringBuilder.append(random);
+    }
+    String code = stringBuilder.toString();
+
+    // 封装其它参数
+    Map<String, String> headers = new HashMap<String, String>();
+    //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
+    headers.put("Authorization", "APPCODE " + appcode);
+    headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+    Map<String, String> querys = new HashMap<String, String>();
+    Map<String, String> bodys = new HashMap<String, String>();
+    bodys.put("content", "code:"+code);
+    bodys.put("phone_number", phone_number);
+    bodys.put("template_id", template_id);
+
+    try {
+        HttpResponse response = HttpUtils.doPost(host, path, method, headers, querys, bodys);
+        StatusLine statusLine = response.getStatusLine();
+        // 获取状态码
+        int statusCode = statusLine.getStatusCode();
+        // 获取错误信息
+        String reasonPhrase = statusLine.getReasonPhrase();
+
+        if(statusCode == 200){
+            return ResultEntity.successWithData(code);
+        }
+        return ResultEntity.fail(reasonPhrase);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResultEntity.fail(e.getMessage());
+    }
+
+}
+```
+
+#### 2.1.3 将短信参数使用yml配置
+
+创建ShortMessageProperties
+
+```java
+@Component
+@ConfigurationProperties(prefix = "short.message")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ShortMessageProperties {
+
+    private String host;
+    private String path;
+    private String method;
+    private String appcode;
+    private String phone_number;
+    private String template_id;
+
+}
+```
+
+在application.yml中配置
+
+```yml
+short:
+  message:
+    host: https://dfsns.market.alicloudapi.com
+    path: /data/send_sms
+    method: POST
+    appcode: 15236a288675494f88cdfb849557aed8
+    template-id: TPL_0000
+```
+
+#### 2.1.4 远程调用
+
+在OpenFeign中添加redis服务，以便远程调用
+
+```java
+@FeignClient(value = "service-provider")
+@Service
+public interface MemberFeignService {
+
+    //redis
+    @RequestMapping("provider/redis/set/timeout")
+    public ResultEntity<String> setKeyValueTimeout(@RequestParam("key") String key,
+                                           @RequestParam("value") String value,
+                                           @RequestParam("time") Long time,
+                                           @RequestParam("timeUnit") TimeUnit timeunit);
+
+    @RequestMapping("/provider/redis/delete/key")
+    public ResultEntity<String> removeKey(@RequestParam("key") String key);
+
+    @RequestMapping("/provider/redis/set/key")
+    public ResultEntity<String> setKyeValue(@RequestParam("key") String key,
+                                            @RequestParam("value") String value);
+
+    @RequestMapping("/provider/redis/get/key")
+    public ResultEntity<String> getValue(@RequestParam("key") String key);
+}
+```
+
+#### 2.1.5 发送短信接口
+
+点击发送验证码
+
+```java
+@ResponseBody
+@RequestMapping("/send/message.json")
+public ResultEntity<String> sendShortMessage(@RequestParam("phonenum") String phoneNum){
+
+    String host = shortMessageProperties.getHost();
+    String path = shortMessageProperties.getPath();
+    String method = shortMessageProperties.getMethod();
+    String appcode = shortMessageProperties.getAppcode();
+    String template_id = shortMessageProperties.getTemplate_id();
+
+    // 1发送验证码
+    ResultEntity<String> sendMessageResultEntity = CrowFundingUtil.sendShortMessage(host, path, method, appcode, phoneNum, template_id);
+    // 2判断是否发送成功
+    if(ResultEntity.SUCCESS.equals(sendMessageResultEntity.getOperationResult())){
+        // 3发送成功，将验证码存入Redis
+        String code = sendMessageResultEntity.getData();
+        ResultEntity<String> redisResultEntity = memberFeignService.setKeyValueTimeout(CrowFundingConstant.REDIS_KEY_PREFIX + phoneNum, code, 5L, TimeUnit.MINUTES);
+
+        if(ResultEntity.SUCCESS.equals(redisResultEntity.getOperationResult())){
+            return ResultEntity.successWithoutData();
+        }else{
+            return redisResultEntity;
+        }//存入Redis失败
+    }else{
+        return sendMessageResultEntity;
+    }// 发送短信失败
+}
+```
+
+### 2.2 添加用户
+
+#### service-provider8001
+
+MemberServiceImpl
+
+```java
+/**
+     * 根据注册信息创建用户
+     * 在调用该方法前，需要把VO转化为PO
+     * @param record PO
+     * @return
+     */
+@Transactional(propagation = Propagation.REQUIRES_NEW,rollbackFor = Exception.class)
+@Override
+public int insertSelective(Member record) {
+    return memberMapper.insertSelective(record);
+}
+```
+
+MemberProviderController
+
+```java
+/**
+     * 插入用户
+     * @param member
+     * @return
+     */
+@RequestMapping("/provider/member/add")
+public ResultEntity<String> insertSelective(@RequestBody Member member){
+    try {
+        int result = memberService.insertSelective(member);
+        if(result > 0){
+            return ResultEntity.successWithoutData();
+        }
+        return ResultEntity.fail(CrowFundingConstant.MESSAGE_INSERT_FAILED);
+    } catch (Exception e) {
+        if(e instanceof DuplicateKeyException){
+            return ResultEntity.fail(e.getMessage());
+        }
+        return ResultEntity.fail(e.getMessage());
+    }
+}
+```
+
+#### authentication-consumer9001
+
+MemberFeignService
+
+```java
+@FeignClient(value = "service-provider")
+@Service
+public interface MemberFeignService {
+
+    ...
+
+    // mysql
+    @RequestMapping("/provider/member/add")
+    public ResultEntity<String> insertSelective(@RequestBody Member member);
+
+}
+```
+
+AuthenticationConsumerController
+
+```java
+/**
+     * 用户注册
+     * @param memberVO 这里不需要使用@RequestBody
+     * @param modelMap
+     * @return
+     */
+@RequestMapping(value = "/add")
+public String addMember(MemberVO memberVO, ModelMap modelMap){
+
+    String userPswd = memberVO.getUserpswd();
+    String phoneNum = memberVO.getPhonenum();
+    String code = memberVO.getCode();
+
+    // 1.从Redis中读取验证码
+    String key = CrowFundingConstant.REDIS_KEY_PREFIX+phoneNum;
+    ResultEntity<String> vauleResultEntity = memberFeignService.getValue(key);
+
+    // 2.判断Redis读取操作是否成功
+    if(ResultEntity.FAILE.equals(vauleResultEntity.getOperationResult())){
+        modelMap.addAttribute("message",vauleResultEntity.getOperationMessage());
+        return "member-register";
+    }
+
+    // 3.判断读取的数据是否不为null
+    String codeInRedis = vauleResultEntity.getData();
+    if(codeInRedis == null){
+        modelMap.addAttribute("message",CrowFundingConstant.MESSAGE_IDENTIFYING_CODE_INVALID);
+        return "member-register";
+    }
+
+    // 4.判断表单中输入的验证码是否与Redis中一致
+    if(!Objects.equals(code,codeInRedis)){
+        modelMap.addAttribute("message",CrowFundingConstant.MESSAGE_IDENTIFYING_CODE_INVALID);
+        return "member-register";
+    }
+
+    // 5.若一致则删除Redis中的验证码，并加密密码写入数据库
+    memberFeignService.removeKey(key);
+    String encryptedPswd = CrowFundingUtil.encrypt(userPswd);
+    memberVO.setUserpswd(encryptedPswd);
+    // 转换为PO
+    //        Member member = new Member(null,loginacct,encryptedPswd,username,email,null,null,null,null,null);
+    Member member = new Member();
+    BeanUtils.copyProperties(memberVO,member);
+
+    ResultEntity<String> insertResultEntity = memberFeignService.insertSelective(member);
+    if(ResultEntity.FAILE.equals(insertResultEntity.getOperationResult())){
+        modelMap.addAttribute("message",CrowFundingConstant.MESSAGE_INSERT_FAILED);
+        return "member-register";
+    }
+
+    return "member-center";
+}
+```
+
+#### 注意：
+
+在短信api中设置的请求头中设置如下：
+
+```java
+headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+```
+
+所以在authentication-consumer9001模块接口中不能使用@RequestBody来接受VO对象
+
+```java
+@RequestMapping(value = "/add")
+public String addMember(MemberVO memberVO, ModelMap modelMap){
+	...
+}
+```
+
+因为@RequestBody接收的是json格式，即
+
+```
+Content-Type: application/json
+```
+
+
+
+
 

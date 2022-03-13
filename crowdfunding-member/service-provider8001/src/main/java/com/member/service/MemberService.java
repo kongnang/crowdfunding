@@ -13,4 +13,6 @@ public interface MemberService {
     Member selectByPrimaryKey(Integer id);
 
     Member selectByLoginAcct(String loginAcct);
+
+    int insertSelective(Member record);
 }

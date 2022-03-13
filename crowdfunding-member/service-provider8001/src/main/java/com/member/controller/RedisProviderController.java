@@ -17,8 +17,11 @@ import java.util.concurrent.TimeUnit;
 @RestController
 public class RedisProviderController {
 
+    /**
+     * 指定RedisTemplate的K,V泛型，防止序列化K,V出现\xac\xed\x00\x05t\x00 的情况
+     */
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String,String> redisTemplate;
 
     /**
      *
@@ -29,7 +32,7 @@ public class RedisProviderController {
      * @return
      */
     @RequestMapping("provider/redis/set/timeout")
-    public ResultEntity<String> setTimeout(@RequestParam("key") String key,
+    public ResultEntity<String> setKeyValueTimeout(@RequestParam("key") String key,
                                            @RequestParam("value") String value,
                                            @RequestParam("time") Long time,
                                            @RequestParam("timeUnit")TimeUnit timeunit){
@@ -49,7 +52,7 @@ public class RedisProviderController {
      * @return
      */
     @RequestMapping("/provider/redis/delete/key")
-    public ResultEntity<String> removeKeyValue(@RequestParam("key") String key){
+    public ResultEntity<String> removeKey(@RequestParam("key") String key){
         try {
             redisTemplate.delete(key);
             return ResultEntity.successWithoutData();
@@ -84,7 +87,7 @@ public class RedisProviderController {
      * @return
      */
     @RequestMapping("/provider/redis/get/key")
-    public ResultEntity<String> getKeyValue(@RequestParam("key") String key){
+    public ResultEntity<String> getValue(@RequestParam("key") String key){
         try {
             ValueOperations<String,String> ops = redisTemplate.opsForValue();
             String value = ops.get(key);

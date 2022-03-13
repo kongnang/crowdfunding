@@ -25,3 +25,11 @@ eureka:
 ribbon:
   eureka:
     enabled: true
+
+short:
+  message:
+    host: https://dfsns.market.alicloudapi.com
+    path: /data/send_sms
+    method: POST
+    appcode: 15236a288675494f88cdfb849557aed8
+    template-id: TPL_0000

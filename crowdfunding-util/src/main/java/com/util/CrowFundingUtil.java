@@ -35,50 +35,45 @@ public class CrowFundingUtil {
                                                         String appcode,
                                                         String phone_number,
                                                         String template_id){
-        // 生成验证码
-        StringBuilder stringBuilder = new StringBuilder();
-        for(int i=0;i<4;i++){
-            int random =(int)(Math.random()*10);
-            stringBuilder.append(random);
-        }
-        String code = stringBuilder.toString();
+//        // 生成验证码
+//        StringBuilder stringBuilder = new StringBuilder();
+//        for(int i=0;i<4;i++){
+//            int random =(int)(Math.random()*10);
+//            stringBuilder.append(random);
+//        }
+//        String code = stringBuilder.toString();
+//
+//        // 封装其它参数
+//        Map<String, String> headers = new HashMap<String, String>();
+//        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
+//        headers.put("Authorization", "APPCODE " + appcode);
+//        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+//        Map<String, String> querys = new HashMap<String, String>();
+//        Map<String, String> bodys = new HashMap<String, String>();
+//        bodys.put("content", "code:"+code);
+//        bodys.put("phone_number", phone_number);
+//        bodys.put("template_id", template_id);
+//
+//        try {
+//            HttpResponse response = HttpUtils.doPost(host, path, method, headers, querys, bodys);
+//            StatusLine statusLine = response.getStatusLine();
+//            // 获取状态码
+//            int statusCode = statusLine.getStatusCode();
+//            // 获取错误信息
+//            String reasonPhrase = statusLine.getReasonPhrase();
+//
+//            if(statusCode == 200){
+//                return ResultEntity.successWithData(code);
+//            }
+//            return ResultEntity.fail(reasonPhrase);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResultEntity.fail(e.getMessage());
+//        }
 
-//        // 短信接口调用的url地址
-//        String host = "https://dfsns.market.alicloudapi.com";
-//        // 具体发送短信功能的地址
-//        String path = "/data/send_sms";
-//        // 请求方式
-//        String method = "POST";
-//        // 你自己的AppCode
-//        String appcode = "15236a288675494f88cdfb849557aed8";
-
-        // 封装其它参数
-        Map<String, String> headers = new HashMap<String, String>();
-        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
-        headers.put("Authorization", "APPCODE " + appcode);
-        headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-        Map<String, String> querys = new HashMap<String, String>();
-        Map<String, String> bodys = new HashMap<String, String>();
-        bodys.put("content", "code:"+code);
-        bodys.put("phone_number", "18760060751");
-        bodys.put("template_id", "TPL_0000");
-
-        try {
-            HttpResponse response = HttpUtils.doPost(host, path, method, headers, querys, bodys);
-            StatusLine statusLine = response.getStatusLine();
-            // 获取状态码
-            int statusCode = statusLine.getStatusCode();
-            // 获取错误信息
-            String reasonPhrase = statusLine.getReasonPhrase();
-
-            if(statusCode == 200){
-                return ResultEntity.successWithData(code);
-            }
-            return ResultEntity.fail(reasonPhrase);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResultEntity.fail(e.getMessage());
-        }
+        // 短信调用次数不足了，暂且模拟发送短信
+        String code = "1234";
+        return ResultEntity.successWithData(code);
     }
 
     /**

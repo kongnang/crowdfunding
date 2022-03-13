@@ -17,11 +17,14 @@ zuul:
 #  ignored-services: "*"  # 忽略多个
   sensitive-headers: "*"  # 在Zuul 向其他微服务重定向时保持原本头信息（请求头、响应头）
   host:
-    connect-timeout-millis: 3000
-    socket-timeout-millis: 3000
+    connect-timeout-millis: 5000
+    socket-timeout-millis: 5000
   routes:
     consumer:
       service-id: auth
       path: /**
   prefix: /member
 
+ribbon:
+  ReadTimeout: 5000
+  ConnectTimeout: 5000
