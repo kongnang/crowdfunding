@@ -4,6 +4,14 @@ server:
 spring:
   application:
     name: gateway-zuul80
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    timeout: 1000
+  #spingsession
+  session:
+    store-type: redis
 
 eureka:
   client:
@@ -14,15 +22,18 @@ eureka:
     prefer-ip-address: true
 
 zuul:
-#  ignored-services: "*"  # 忽略多个
-  sensitive-headers: "*"  # 在Zuul 向其他微服务重定向时保持原本头信息（请求头、响应头）
+  ignored-services: "*"  # 表示忽视直接通过application-name访问微服务，必须通过route
+  sensitive-headers: "*"  # 在Zuul向其他微服务重定向时，保持原本的头信息（请求头、响应头）
   host:
     connect-timeout-millis: 5000
     socket-timeout-millis: 5000
   routes:
-    consumer:
+    crowd-protal:
       service-id: auth
-      path: /**
+      path: /auth/**
+    crowd-prodvider:
+      service-id: service-provider
+      path: /provider/**
   prefix: /member
 
 ribbon:
