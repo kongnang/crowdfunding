@@ -1042,15 +1042,21 @@ public String addMember(MemberVO memberVO, ModelMap modelMap){
 当不使用@RequestBody对象接收参数时，会调用对象的set方法
 ```
 
-### 2.3 用户登录session共享问题
+
+
+
+
+## 3 用户登录
+
+### 3.1 用户登录session共享问题
 
 ![](../img/member-002.jpg)
 
-#### 2.3.1 Cookie和Session
+#### 3.1.1 Cookie和Session
 
 cookie保存在浏览器，session保存在服务器
 
-##### 2.3.1.1 Cookie的工作机制
+##### 3.1.1.1 Cookie的工作机制
 
 >服务器端返回Cookie 信息给浏览器
 >
@@ -1062,7 +1068,7 @@ cookie保存在浏览器，session保存在服务器
 >
 >HTTP 请求消息头：Cookie： Cookie 的名字=Cookie 的值
 
-##### 2.3.1.2 Session的工作机制
+##### 3.1.1.2 Session的工作机制
 
 >获取Session 对象：request.getSession()
 >
@@ -1076,9 +1082,9 @@ cookie保存在浏览器，session保存在服务器
 >
 >​		没带：新建Session 对象返回，同时返回JSESSIONID 的Cookie
 
-#### 2.3.2 解决方案探索
+#### 3.1.2 解决方案探索
 
-##### 2.3.2.1 Session同步
+##### 3.1.2.1 Session同步
 
 同步Tomcat中的数据
 
@@ -1088,7 +1094,7 @@ cookie保存在浏览器，session保存在服务器
 
 问题2：数据同步对性能有一定影响。
 
-##### 2.3.2.2 将Session数据存储在Cookie中
+##### 3.1.2.2 将Session数据存储在Cookie中
 
 所有会话数据在浏览器端使用Cookie 保存，服务器端不存储任何会话数据。
 
@@ -1097,7 +1103,7 @@ cookie保存在浏览器，session保存在服务器
 缺点：Cookie 能够存储的数据非常有限。一般是4KB。不能存储丰富的数据。
 Cookie 数据在浏览器端存储，很大程度上不受服务器端控制，如果浏览器端清理Cookie，相关数据会丢失。
 
-##### 2.3.2.3 iphash
+##### 3.1.2.3 iphash
 
 根据ip进行hash运算后，对应一个固定的Tomcat服务器
 
@@ -1107,7 +1113,7 @@ Cookie 数据在浏览器端存储，很大程度上不受服务器端控制，�
 
 问题2：仅仅适用于集群范围内，超出集群范围，负载均衡服务器无效。
 
-##### 2.3.2.4 使用Redis存储Session数据
+##### 3.1.2.4 使用Redis存储Session数据
 
 Session 数据存取比较频繁。内存访问速度快。
 
@@ -1119,10 +1125,174 @@ Redis 可以配置主从复制集群，不担心单点故障。
 
 ![](../img/member-005.jpg)
 
-### 2.4 SpringSession工作原理
+### 3.2 SpringSession工作原理
 
 SpringSession从底层接管了Tomcat对Session的管理
 
 SpringSession通过SessionRepostiroyFilter对request对象进行包装
 
 ![](../img/member-006.jpg)
+
+
+
+使用SpringSession
+
+```xml
+<!-- 引入springboot&redis 整合场景-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+<!-- 引入springboot&springsession 整合场景-->
+<dependency>
+    <groupId>org.springframework.session</groupId>
+    <artifactId>spring-session-data-redis</artifactId>
+</dependency>
+```
+
+```yml
+spring:
+	redis:
+		host: 127.0.0.1
+	session:
+		store-type: redis
+```
+
+### 3.3 登录检查
+
+![](../img/member-007.jpg)
+
+#### 3.3.1 设置不需要登录检查的资源
+
+```java
+public class AccessPassResources {
+
+    public static final Set<String> PASS_RESOURCES = new HashSet<>();
+
+    public static final Set<String> STATIC_RESOURCES = new HashSet<>();
+
+    static {
+        PASS_RESOURCES.add("/member/auth");
+        PASS_RESOURCES.add("/member/auth/login");
+        PASS_RESOURCES.add("/member/auth/register");
+        PASS_RESOURCES.add("/member/auth/do/login");
+        PASS_RESOURCES.add("/member/auth/logout");
+        PASS_RESOURCES.add("/member/auth/send/message.json");
+    }
+
+    static{
+        STATIC_RESOURCES.add("bootstrap");
+        STATIC_RESOURCES.add("css");
+        STATIC_RESOURCES.add("fonts");
+        STATIC_RESOURCES.add("img");
+        STATIC_RESOURCES.add("jquery");
+        STATIC_RESOURCES.add("layer");
+        STATIC_RESOURCES.add("script");
+        STATIC_RESOURCES.add("ztree");
+    }
+
+
+    /* 判断是否请求静态资源*/
+    public static boolean isStaticResources(String servletPath){
+
+        if(servletPath == null || servletPath.length() == 0){
+            throw new RuntimeException(CrowFundingConstant.MESSAGE_STRING_INVALIDATE);
+        }
+
+        // 拆分字符串
+        String[] split = servletPath.split("/");
+
+        // /member/auth/css/carousel.css
+        // ["","member","auth,"css","carousel",".","css"]
+        String s = split[3];
+
+        return STATIC_RESOURCES.contains(s);
+    }
+
+}
+```
+
+#### 3.3.2 ZuulFilter
+
+```java
+@Component
+public class MyZuulFilter extends ZuulFilter {
+    /**
+     *
+     * @return 返回“pre”意思是在目标微服务前执行过滤
+     */
+    @Override
+    public String filterType() {
+        return "pre";
+    }
+
+    @Override
+    public int filterOrder() {
+        return 0;
+    }
+
+    /**
+     * 登录检查
+     * @return 返回true表示需要做登录检查
+     */
+    @Override
+    public boolean shouldFilter() {
+        // 1.获取RequestContext对象
+        RequestContext requestContext = RequestContext.getCurrentContext();
+
+        // 2.获取ServletPath
+        String servletPath = requestContext.getRequest().getServletPath();
+
+        // 3.判断是否放行
+        if(AccessPassResources.PASS_RESOURCES.contains(servletPath) || AccessPassResources.isStaticResources(servletPath)){
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取session中的对象
+     * @return
+     * @throws ZuulException
+     */
+    @Override
+    public Object run() throws ZuulException {
+        // 1.获取RequestContext对象
+        RequestContext requestContext = RequestContext.getCurrentContext();
+
+        // 2.获取Session
+        HttpSession session = requestContext.getRequest().getSession();
+
+        MemberLoginVO member =(MemberLoginVO) session.getAttribute(CrowFundingConstant.MEMBER_LOGIN_NAME);
+        // 3.登录对象为空则未登录，返回到登录界面
+        if(Objects.isNull(member)){
+            session.setAttribute("message",CrowFundingConstant.MESSAGE_ACCESS_FORBIDEN);
+
+            // 4.重定向至登录界面
+            HttpServletResponse response = requestContext.getResponse();
+            try {
+                response.sendRedirect("/member/auth/login");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+}
+```
+
+为了能够让整个过程中保持Session 工作正常，需要加入配置：
+
+```yml
+zuul:
+	# 在Zuul 向其他微服务重定向时保持原本头信息（请求头、响应头）
+	sensitive-headers: "*" 
+```
+
+
+
+###  阿里云OSS对象存储
+
+[快速入门 ](https://help.aliyun.com/document_detail/32011.html)
