@@ -16,6 +16,6 @@
         <!--接口类-->
         <javaClientGenerator type="XMLMAPPER" targetPackage="com.member.mapper" targetProject="./crowdfunding-member/service-provider8001/src/main/java"/>
 
-        <table tableName="member" />
+<!--        <table tableName="member" />-->
     </context>
 </generatorConfiguration>
