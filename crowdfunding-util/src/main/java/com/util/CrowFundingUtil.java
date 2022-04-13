@@ -1,23 +1,84 @@
 package com.util;
 
 
+import com.aliyun.oss.*;
+import com.aliyun.oss.common.comm.ResponseMessage;
+import com.aliyun.oss.model.PutObjectResult;
 import com.constant.CrowFundingConstant;
 import com.exception.LoginFailedException;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author qiu
  * @create 2021-12-25 10:56
  */
 public class CrowFundingUtil {
+
+
+    /**
+     * 将文件上传到OSS服务器
+     * @param endPoint
+     * @param bucketName
+     * @param accessKeyId
+     * @param accessKeySecret
+     * @param bucketDomain
+     * @param inputStream
+     * @param originalFileName 原始文件名 如 example.txt
+     * @return
+     */
+    public static ResultEntity<String> uploadFileToOSS(String endPoint,
+                                                       String bucketName,
+                                                       String accessKeyId,
+                                                       String accessKeySecret,
+                                                       String bucketDomain,
+                                                       InputStream inputStream,
+                                                       String originalFileName){
+
+        // 文件目录 20220412
+        String folderName = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        // 文件后缀名
+        String extentionName = originalFileName.substring(originalFileName.lastIndexOf("."));
+        // 文件主体名，使用UUID随机生成
+        String fileMainName = UUID.randomUUID().toString().replace("-","");
+        // 填写Object完整路径，例如20220412/exampleobject.txt。Object完整路径中不能包含Bucket名称。
+        String objectName = folderName + "/" + fileMainName + extentionName;
+
+
+        // 创建OSSClient实例
+        OSS oss = new OSSClientBuilder().build(endPoint, accessKeyId, accessKeySecret);
+        try {
+            // 上传文件并获得响应结果
+            PutObjectResult result = oss.putObject(bucketName, objectName, inputStream);
+            // 从响应体中获取响应信息
+            ResponseMessage response = result.getResponse();
+            // 根据响应体内容判断是否上传成功
+            if(Objects.isNull(response)){
+                String uploadUrl = bucketDomain + "/" + objectName;
+                return ResultEntity.successWithData(uploadUrl);
+            }else{
+                int statusCode = response.getStatusCode();
+                String errorMessage = response.getErrorResponseAsString();
+                return ResultEntity.fail("状态码："+statusCode+"  "+"错误信息："+errorMessage);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultEntity.fail(e.getMessage());
+        }finally {
+            // 关闭ossclient
+            oss.shutdown();
+        }
+    }
+
 
     /**
      *
