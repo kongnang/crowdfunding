@@ -34,6 +34,7 @@ ribbon:
   eureka:
     enabled: true
 
+# 自定义短信服务
 short:
   message:
     host: https://dfsns.market.alicloudapi.com

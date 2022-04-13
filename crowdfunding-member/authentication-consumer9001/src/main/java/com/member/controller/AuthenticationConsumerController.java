@@ -15,7 +15,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.util.Enumeration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +30,15 @@ public class AuthenticationConsumerController {
 
     @Autowired
     private MemberFeignService memberFeignService;
+
+    /**
+     * 我的众筹页面
+     * @return
+     */
+    @GetMapping("/mycrowdfunding")
+    public String myCrowdfundingPage(){
+        return "member-crowd";
+    }
 
     /**
      * 退出登录
