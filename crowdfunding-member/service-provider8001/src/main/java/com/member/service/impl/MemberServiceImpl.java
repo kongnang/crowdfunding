@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author qiu
@@ -44,6 +45,9 @@ public class MemberServiceImpl implements MemberService {
         MemberExample example = new MemberExample();
         example.createCriteria().andLoginacctEqualTo(loginAcct);
         List<Member> members = memberMapper.selectByExample(example);
+        if(Objects.isNull(members) || members.size() == 0){
+            return null;
+        }
         return members.get(0);
     }
 

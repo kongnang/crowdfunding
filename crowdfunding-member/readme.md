@@ -655,7 +655,7 @@ http://localhost:9001/get/1
 
 http://localhost:80/auth-consumer/get/1
 
-## 2 用户登录
+## 2 用户注册
 
 ### 2.1 发送手机验证码功能
 
@@ -787,6 +787,17 @@ public static ResultEntity<String> sendShortMessage(String host,
 ```
 
 #### 2.1.3 将短信参数使用yml配置
+
+添加自定义元注解依赖
+
+```xml
+<!-- 自定义元数据ShortMessageProperties 依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+```
 
 创建ShortMessageProperties
 
@@ -999,7 +1010,7 @@ public String addMember(MemberVO memberVO, ModelMap modelMap){
         return "member-register";
     }
 
-    return "member-center";
+   return "redirect:/member/auth/login";
 }
 ```
 
@@ -1020,13 +1031,98 @@ public String addMember(MemberVO memberVO, ModelMap modelMap){
 }
 ```
 
-因为@RequestBody接收的是json格式，即
+因为@RequestBody接收的是json格式
 
+```json
+"Content-Type: application/json" 
+格式:"username": "kongnang"
+
+"application/x-www-form-urlencoded"
+格式:username = kongnang
+当不使用@RequestBody对象接收参数时，会调用对象的set方法
 ```
-Content-Type: application/json
-```
 
+### 2.3 用户登录session共享问题
 
+![](../img/member-002.jpg)
 
+#### 2.3.1 Cookie和Session
 
+cookie保存在浏览器，session保存在服务器
 
+##### 2.3.1.1 Cookie的工作机制
+
+>服务器端返回Cookie 信息给浏览器
+>
+>​	Java 代码：response.addCookie(cookie 对象);
+>
+>​	HTTP 响应消息头：Set-Cookie: Cookie 的名字=Cookie 的值
+>
+>浏览器接收到服务器端返回的Cookie，以后的每一次请求都会把Cookie 带上
+>
+>HTTP 请求消息头：Cookie： Cookie 的名字=Cookie 的值
+
+##### 2.3.1.2 Session的工作机制
+
+>获取Session 对象：request.getSession()
+>
+>​	检查当前请求是否携带了JSESSIONID 这个Cookie
+>
+>​		带了：根据这个JSESSIONID 在服务器端查找对应的Session 对象
+>
+>​			能找到：就把找到的Session 对象返回
+>
+>​			没找到：新建Session 对象返回，同时返回JSESSIONID 的Cookie
+>
+>​		没带：新建Session 对象返回，同时返回JSESSIONID 的Cookie
+
+#### 2.3.2 解决方案探索
+
+##### 2.3.2.1 Session同步
+
+同步Tomcat中的数据
+
+![](../img/member-003.jpg)
+
+问题1：造成Session 在各个服务器上“同量”保存。TomcatA 保存了1G的Session 数据，TomcatB 也需要保存1G 的Session 数据。数据量太大的会导致Tomcat 性能下降。
+
+问题2：数据同步对性能有一定影响。
+
+##### 2.3.2.2 将Session数据存储在Cookie中
+
+所有会话数据在浏览器端使用Cookie 保存，服务器端不存储任何会话数据。
+
+好处：服务器端大大减轻了数据存储的压力。不会有Session 不一致问题
+
+缺点：Cookie 能够存储的数据非常有限。一般是4KB。不能存储丰富的数据。
+Cookie 数据在浏览器端存储，很大程度上不受服务器端控制，如果浏览器端清理Cookie，相关数据会丢失。
+
+##### 2.3.2.3 iphash
+
+根据ip进行hash运算后，对应一个固定的Tomcat服务器
+
+![](../img/member-004.jpg)
+
+问题1：具体一个浏览器，专门访问某一个具体服务器，如果服务器宕机，会丢失数据。存在单点故障风险。
+
+问题2：仅仅适用于集群范围内，超出集群范围，负载均衡服务器无效。
+
+##### 2.3.2.4 使用Redis存储Session数据
+
+Session 数据存取比较频繁。内存访问速度快。
+
+Session 有过期时间，Redis 这样的内存数据库能够比较方便实现过期释放。
+
+访问速度比较快。虽然需要经过网络访问，但是现在硬件条件已经能够达到网络访问比硬盘访问还要快。
+
+Redis 可以配置主从复制集群，不担心单点故障。
+
+![](../img/member-005.jpg)
+
+### 2.4 SpringSession工作原理
+
+SpringSession从底层接管了Tomcat对Session的管理
+
+SpringSession通过SessionRepostiroyFilter对request对象进行包装
+
+![](../img/member-006.jpg)

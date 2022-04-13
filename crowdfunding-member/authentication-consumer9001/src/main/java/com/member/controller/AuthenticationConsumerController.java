@@ -3,6 +3,7 @@ package com.member.controller;
 import com.constant.CrowFundingConstant;
 import com.member.config.ShortMessageProperties;
 import com.member.entities.po.Member;
+import com.member.entities.vo.MemberLoginVO;
 import com.member.entities.vo.MemberVO;
 import com.member.service.MemberFeignService;
 import com.util.CrowFundingUtil;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
+import java.util.Enumeration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +32,63 @@ public class AuthenticationConsumerController {
     @Autowired
     private MemberFeignService memberFeignService;
 
+    /**
+     * 退出登录
+     * @param session
+     * @return
+     */
+    @GetMapping("/logout")
+    public String userLogout(HttpSession session){
+        // 清除session数据
+        session.invalidate();
+        return "redirect:http://localhost/member/auth";
+    }
+
+    /**
+     * 用户登录
+     * @param loginacct
+     * @param loginpswd
+     * @param modelMap
+     * @param session
+     * @return
+     */
+    @RequestMapping("/do/login")
+    public String userLoginPage(@RequestParam("loginacct")String loginacct,
+                                @RequestParam("loginpswd") String loginpswd,
+                                ModelMap modelMap,
+                                HttpSession session){
+
+        // 1.根据用户名获取用户信息
+        ResultEntity<Member> memberResultEntity = memberFeignService.getByLoginAcct(loginacct);
+        if(memberResultEntity.getOperationResult().equals(ResultEntity.FAILE)){
+            // 账号不存在
+            modelMap.addAttribute(CrowFundingConstant.MESSAGE_LOGIN_ACCOUNT_NOT_EXIST,memberResultEntity.getOperationMessage());
+            return "redirect:http://localhost/member/auth/login";
+        }
+        Member member = memberResultEntity.getData();
+        if(Objects.isNull(member)){
+            modelMap.addAttribute(CrowFundingConstant.MESSAGE_LOGIN_ACCOUNT_NOT_EXIST,memberResultEntity.getOperationMessage());
+            return "redirect:http://localhost/member/auth/login";
+        }
+
+        // 2.比较密码
+        String encrypt = CrowFundingUtil.encrypt(loginpswd);
+        if(!encrypt.equals(member.getUserpswd())){
+            modelMap.addAttribute(CrowFundingConstant.MESSAGE_LOGIN_FAILED);
+            return "redirect:http://localhost/member/auth/login";
+        }
+
+        // 3.存入session
+        MemberLoginVO memberLoginVO = new MemberLoginVO(member.getId(),member.getUsername(),member.getEmail());
+        session.setAttribute(CrowFundingConstant.MEMBER_LOGIN_NAME,memberLoginVO);
+
+        return "redirect:http://localhost/member/auth/center";
+    }
+
+    /**
+     * 用户页面
+     * @return
+     */
     @RequestMapping("/center")
     public String userCenterPage(){
         return "member-center";
@@ -85,7 +145,7 @@ public class AuthenticationConsumerController {
             return "member-register";
         }
 
-        return "member-center";
+        return "redirect:http://localhost/member/auth/login";
     }
 
     /**
