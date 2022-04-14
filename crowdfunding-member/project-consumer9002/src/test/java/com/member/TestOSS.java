@@ -1,9 +1,11 @@
 package com.member;
 
+import com.member.config.OSSProperties;
 import com.util.CrowFundingUtil;
 import com.util.ResultEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
@@ -18,13 +20,17 @@ import java.io.InputStream;
 @Slf4j
 @SpringBootTest
 public class TestOSS {
+
+    @Autowired
+    private OSSProperties ossProperties;
+
     @Test
     public void test(){
-        String endPoint = "https://oss-cn-shenzhen.aliyuncs.com";
-        String bucketName = "crowdfunding123";
-        String accessKeyId = "LTAI5tRod2DSBcCa65KgKpDu";
-        String accessKeySecret = "uwM860Qgz32BhZuCeq958BktwhC6vd";
-        String bucketDomain = "https://crowdfunding123.oss-cn-shenzhen.aliyuncs.com";
+        String endPoint = ossProperties.getEndPoint();
+        String bucketName = ossProperties.getBucketName();
+        String accessKeyId = ossProperties.getAccessKeyId();
+        String accessKeySecret = ossProperties.getAccessKeySecret();
+        String bucketDomain = ossProperties.getBucketDomain();
         String originalFileName = "upload.png";
         FileInputStream inputStream = null;
         try {
