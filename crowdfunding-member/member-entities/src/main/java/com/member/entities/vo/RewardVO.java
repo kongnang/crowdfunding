@@ -20,7 +20,7 @@ public class RewardVO implements Serializable {
     // 回报类型：0 - 实物回报， 1 虚拟物品回报
     private Integer type;
     // 支持金额
-    private Integer supportmoney;
+    private Integer supportMoney;
     // 回报内容介绍
     private String content;
     // 总回报数量，0 为不限制

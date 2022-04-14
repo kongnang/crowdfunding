@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.member.mapper.ProjectPOMapper">
+<mapper namespace="com.member.mapper.ProjectMapper">
   <resultMap id="BaseResultMap" type="com.member.entities.po.ProjectPO">
     <!--
       WARNING - @mbg.generated
@@ -22,6 +22,25 @@
     <result column="follower" jdbcType="INTEGER" property="follower" />
     <result column="header_picture_path" jdbcType="VARCHAR" property="headerPicturePath" />
   </resultMap>
+
+<!--  项目与标签关系-->
+  <insert id="insertRelationshipWithTag">
+    insert into project_tag(project_id,tag_id) values
+    <foreach collection="tagIdList" item="tagId" separator=",">
+      (#{projectId}, #{tagId})
+    </foreach>
+  </insert>
+
+<!--  项目与类型关系-->
+  <insert id="insertRelationshipWithType">
+    insert into project_type(project_id,type_id) values
+    <foreach collection="typeIdList" item="typeId" separator=",">
+        (#{projectId}, #{typeId})
+    </foreach>
+  </insert>
+
+
+
   <sql id="Example_Where_Clause">
     <!--
       WARNING - @mbg.generated

@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author qiu
  * @create 2022-03-05 20:07
  */
+@MapperScan("com.member.mapper")
 @SpringBootApplication
 public class ServiceProviderMain8001 {
     public static void main(String[] args) {

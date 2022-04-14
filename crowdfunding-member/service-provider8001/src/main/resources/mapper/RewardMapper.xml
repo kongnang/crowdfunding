@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.member.mapper.RewardPOMapper">
+<mapper namespace="com.member.mapper.RewardMapper">
   <resultMap id="BaseResultMap" type="com.member.entities.po.RewardPO">
     <!--
       WARNING - @mbg.generated
@@ -20,6 +20,19 @@
     <result column="day_to_reward" jdbcType="INTEGER" property="dayToReward" />
     <result column="describe_picture_path" jdbcType="VARCHAR" property="describePicturePath" />
   </resultMap>
+
+  <!-- 批量插入-->
+  <insert id="insertBatch">
+    insert into reward(project_id,`type`,support_money,content,count,is_purchase_limits,
+    purchase_count,freight,is_receipt,day_to_reward,describe_picture_path) values
+    <foreach collection="rewardPOList" item="rewardPO" separator=",">
+      (#{projectId},#{rewardPO.type},#{rewardPO.supportMoney},#{rewardPO.content},#{rewardPO.count},
+       #{rewardPO.isPurchaseLimits},#{rewardPO.purchaseCount},#{rewardPO.freight},#{rewardPO.isReceipt},
+       #{rewardPO.dayToReward},#{rewardPO.describePicturePath})
+    </foreach>
+  </insert>
+
+
   <sql id="Example_Where_Clause">
     <!--
       WARNING - @mbg.generated

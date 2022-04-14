@@ -31,7 +31,7 @@ public class ProjectVO implements Serializable  {
     // 筹集资金的天数
     private Integer day;
     // 创建项目的日期
-    private String createdate;
+    private String createTime;
     // 头图的路径
     private String headerPicturePath;
     // 详情图片的路径
@@ -39,7 +39,7 @@ public class ProjectVO implements Serializable  {
     // 发起人信息
     private SponsorInfoVO sponsorInfoVO;
     // 回报信息集合
-    private List<RewardVO> returnVOList;
+    private List<RewardVO> rewardVOList;
     // 发起人确认信息
     private SponsorConfirmInfoVO sponsorConfirmInfoVO;
 }

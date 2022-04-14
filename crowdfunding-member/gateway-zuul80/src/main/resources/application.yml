@@ -34,6 +34,9 @@ zuul:
     crowd-prodvider:
       service-id: service-provider
       path: /provider/**
+    crowd-project:
+      service-id: project
+      path: /project/**
   prefix: /member
 
 ribbon:
