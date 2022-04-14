@@ -41,6 +41,6 @@ public class TestOSS {
 
         ResultEntity<String> resultEntity = CrowFundingUtil.uploadFileToOSS(endPoint, bucketName, accessKeyId, accessKeySecret, bucketDomain, inputStream, originalFileName);
 
-        log.info(resultEntity.getOperationMessage());
+        log.info(resultEntity.getData());
     }
 }
