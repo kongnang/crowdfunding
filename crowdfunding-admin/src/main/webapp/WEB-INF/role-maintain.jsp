@@ -37,7 +37,7 @@
         $("#saveRoleBtn").click(function () {
             var roleName = $.trim($("#addModal [name=roleName]").val());
             $.ajax({
-                "url": "http://localhost:8080/admin/role/save.json",
+                "url": "http://43.138.154.51:8080/admin/role/save.json",
                 "type": "post",
                 "data": {
                     "name": roleName
@@ -72,7 +72,7 @@
         $("#updateRoleBtn").click(function(){
             var roleName = $("#editModal [name=roleName]").val();
             $.ajax({
-                "url":"http://localhost:8080/admin/role/update.json",
+                "url":"http://43.138.154.51:8080/admin/role/update.json",
                 "type":"post",
                 "data":{
                     "id":window.roleId,
@@ -99,7 +99,7 @@
         $("#removeRoleBtn").click(function(){
             var requestBody = JSON.stringify(window.roleIdArray);
             $.ajax({
-                "url":"http://localhost:8080/admin/role/delete.json",
+                "url":"http://43.138.154.51:8080/admin/role/delete.json",
                 "type":"post",
                 "data":requestBody,
                 "contentType":"application/json;charset=UTF-8",
@@ -183,7 +183,7 @@
             };
             requestBody = JSON.stringify(requestBody);
             $.ajax({
-                "url": "http://localhost:8080/admin/assign/auth/save.json",
+                "url": "http://43.138.154.51:8080/admin/assign/auth/save.json",
                 "type": "post",
                 "data": requestBody,
                 "contentType": "application/json;charset=UTF-8",

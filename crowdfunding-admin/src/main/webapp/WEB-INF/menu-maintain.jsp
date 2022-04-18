@@ -29,7 +29,7 @@
             var icon = $("#menuAddModal [name=icon]:checked").val();
 
             $.ajax({
-                "url":"http://localhost:8080/admin/menu/add.json",
+                "url":"http://43.138.154.51:8080/admin/menu/add.json",
                 "type":"post",
                 "data":{
                     "pid": window.pid,
@@ -77,7 +77,7 @@
             var url = $("#menuEditModal [name=url]").val();
             var icon = $("#menuEditModal [name=icon]:checked").val();
             $.ajax({
-                "url":"http://localhost:8080/admin/menu/update.json",
+                "url":"http://43.138.154.51:8080/admin/menu/update.json",
                 "type":"post",
                 "data":{
                     "id": window.id,
@@ -118,7 +118,7 @@
         // 给确认模态框中的OK 按钮绑定单击响应函数
         $("#confirmBtn").click(function(){
             $.ajax({
-                "url":"http://localhost:8080/admin/menu/delete.json",
+                "url":"http://43.138.154.51:8080/admin/menu/delete.json",
                 "type":"post",
                 "data":{
                     "id":window.id

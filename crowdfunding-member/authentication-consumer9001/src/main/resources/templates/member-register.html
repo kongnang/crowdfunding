@@ -18,7 +18,7 @@
             $("#sendBtn").click(function () {
                 var phonenum = $.trim($("[name=phonenum]").val());
                 $.ajax({
-                    url: "http://localhost/member/auth/send/message.json",
+                    url: "http://43.138.154.51/member/auth/send/message.json",
                     type: "post",
                     data: {
                         "phonenum":phonenum
@@ -51,7 +51,7 @@
 
 <div class="container">
 
-    <form action="http://localhost/member/auth/add"  method="post" class="form-signin" role="form">
+    <form action="http://43.138.154.51/member/auth/add"  method="post" class="form-signin" role="form">
         <h2 class="form-signin-heading"><i class="glyphicon glyphicon-log-in"></i> 用户注册</h2>
         <p th:text="${message}"></p>
         <div class="form-group has-success has-feedback">

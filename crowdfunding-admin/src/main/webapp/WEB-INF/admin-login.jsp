@@ -33,7 +33,7 @@
 </nav>
 
 <div class="container">
-    <form action="http://localhost:8080/admin/security/do/login" method="post" class="form-signin" role="form">
+    <form action="http://43.138.154.51:8080/admin/security/do/login" method="post" class="form-signin" role="form">
         <h2 class="form-signin-heading"><i class="glyphicon glyphicon-log-in"></i> 管理员登录</h2>
         <p>${SPRING_SECURITY_LAST_EXCEPTION.message}</p>
         <div class="form-group has-success has-feedback">

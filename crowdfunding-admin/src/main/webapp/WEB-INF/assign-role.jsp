@@ -30,13 +30,13 @@
         <%@ include file="include-sidebar.jsp" %>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
             <ol class="breadcrumb">
-                <li><a href="http://localhost:8080/admin/main">首页</a></li>
-                <li><a href="http://localhost:8080/admin/usermaintain">数据列表</a></li>
+                <li><a href="http://43.138.154.51:8080/admin/main">首页</a></li>
+                <li><a href="http://43.138.154.51:8080/admin/usermaintain">数据列表</a></li>
                 <li class="active">分配角色</li>
             </ol>
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <form role="form" class="form-inline" action="http://localhost:8080/admin/assign/save" method="post">
+                    <form role="form" class="form-inline" action="http://43.138.154.51:8080/admin/assign/save" method="post">
                         <input type="hidden" name="adminId" value="${param.adminId}" />
                         <input type="hidden" name="pageNum" value="${param.pageNum}" />
                         <div class="form-group">

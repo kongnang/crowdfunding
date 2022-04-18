@@ -8,11 +8,12 @@ spring:
     driver-class-name:  com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/crowdfunding?serverTimezone=UTC&nullCatalogMeansCurrent=true
     username: root
-    password: bruce123
+    password: poopybutthole
   redis:
     database: 0
     host: 127.0.0.1
     port: 6379
+    password: poopybutthole
     jedis:
       pool:
         # 连接池最大连接数，负数表示没有限制

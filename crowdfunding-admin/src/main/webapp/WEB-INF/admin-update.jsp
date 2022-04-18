@@ -17,14 +17,14 @@
         <%@ include file="include-sidebar.jsp" %>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
             <ol class="breadcrumb">
-                <li><a href="http://localhost:8080/admin/main">首页</a></li>
-                <li><a href="http://localhost:8080/admin/usermaintain">数据列表</a></li>
+                <li><a href="http://43.138.154.51:8080/admin/main">首页</a></li>
+                <li><a href="http://43.138.154.51:8080/admin/usermaintain">数据列表</a></li>
                 <li class="active">修改</li>
             </ol>
             <div class="panel panel-default">
                 <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
                 <div class="panel-body">
-                    <form role="form" action="http://localhost:8080/admin/update" method="post">
+                    <form role="form" action="http://43.138.154.51:8080/admin/update" method="post">
                         <div class="form-group">
                             <label for="exampleInputPassword1">登陆账号</label>
                             <input type="text" name="loginAcct" class="form-control" id="exampleInputPassword1" value="${updateAdmin.loginAcct}">

@@ -34,7 +34,7 @@
 
     function pageSelectCallback(pageIndex, jQuery) {
         var pageNum = pageIndex + 1;
-        window.location.href = "http://localhost:8080/admin/usermaintain?pageNum="+pageNum+"&keyword=${param.keyword}";
+        window.location.href = "http://43.138.154.51:8080/admin/usermaintain?pageNum="+pageNum+"&keyword=${param.keyword}";
         return false;
     }
 </script>
@@ -49,7 +49,7 @@
                     <h3 class="panel-title"><i class="glyphicon glyphicon-th"></i> 数据列表</h3>
                 </div>
                 <div class="panel-body">
-                    <form action="http://localhost:8080/admin/usermaintain" method="post" class="form-inline" role="form" style="float:left;">
+                    <form action="http://43.138.154.51:8080/admin/usermaintain" method="post" class="form-inline" role="form" style="float:left;">
                         <div class="form-group has-feedback">
                             <div class="input-group">
                                 <div class="input-group-addon">查询条件</div>
@@ -59,7 +59,7 @@
                         <button type="button" class="btn btn-warning"><i class="glyphicon glyphicon-search"></i> 查询</button>
                     </form>
                     <button type="button" class="btn btn-danger" style="float:right;margin-left:10px;"><i class=" glyphicon glyphicon-remove"></i> 删除</button>
-                    <button type="button" class="btn btn-primary" style="float:right;" onclick="window.location.href='http://localhost:8080/admin/add'"><i class="glyphicon glyphicon-plus"></i> 新增</button>
+                    <button type="button" class="btn btn-primary" style="float:right;" onclick="window.location.href='http://43.138.154.51:8080/admin/add'"><i class="glyphicon glyphicon-plus"></i> 新增</button>
                     <br>
                     <hr style="clear:both;">
                     <security:authorize access="hasRole('用户管理测试员') or hasRole('超级管理员')">
@@ -90,13 +90,13 @@
                                             <td>${admin.userName }</td>
                                             <td>${admin.email }</td>
                                             <td>
-                                                <a href="http://localhost:8080/admin/assign?adminId=${admin.id }&pageNum=${adminPageInfo.pageNum }" class="btn btn-success btn-xs">
+                                                <a href="http://43.138.154.51:8080/admin/assign?adminId=${admin.id }&pageNum=${adminPageInfo.pageNum }" class="btn btn-success btn-xs">
                                                     <i class=" glyphicon glyphicon-check"></i>
                                                 </a>
-                                                <a href="http://localhost:8080/admin/update?id=${admin.id}" class="btn btn-primary btn-xs">
+                                                <a href="http://43.138.154.51:8080/admin/update?id=${admin.id}" class="btn btn-primary btn-xs">
                                                     <i class=" glyphicon glyphicon-pencil"></i>
                                                 </a>
-                                                <a href="http://localhost:8080/admin/delete/${admin.id}/${adminPageInfo.pageNum}" class="btn btn-danger btn-xs">
+                                                <a href="http://43.138.154.51:8080/admin/delete/${admin.id}/${adminPageInfo.pageNum}" class="btn btn-danger btn-xs">
                                                     <i class=" glyphicon glyphicon-remove"></i>
                                                 </a>
                                                 <p>${requestScope.res}</p>

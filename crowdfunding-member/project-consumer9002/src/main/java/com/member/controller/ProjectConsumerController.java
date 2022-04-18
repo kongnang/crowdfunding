@@ -189,7 +189,7 @@ public class ProjectConsumerController {
         // 3.存入session域
         session.setAttribute(CrowFundingConstant.PROJECT_INFO, projectVO);
 
-        return "redirect://localhost/member/project/reward";
+        return "redirect:http://localhost/member/project/reward";
     }
 
     /* 完成页面*/

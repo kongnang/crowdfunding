@@ -49,7 +49,7 @@ public class AuthenticationConsumerController {
     public String userLogout(HttpSession session){
         // 清除session数据
         session.invalidate();
-        return "redirect:http://localhost/member/auth";
+        return "redirect:http://43.138.154.51/member/auth";
     }
 
     /**
@@ -71,26 +71,26 @@ public class AuthenticationConsumerController {
         if(memberResultEntity.getOperationResult().equals(ResultEntity.FAILE)){
             // 账号不存在
             modelMap.addAttribute(CrowFundingConstant.MESSAGE_LOGIN_ACCOUNT_NOT_EXIST,memberResultEntity.getOperationMessage());
-            return "redirect:http://localhost/member/auth/login";
+            return "redirect:http://43.138.154.51/member/auth/login";
         }
         Member member = memberResultEntity.getData();
         if(Objects.isNull(member)){
             modelMap.addAttribute(CrowFundingConstant.MESSAGE_LOGIN_ACCOUNT_NOT_EXIST,memberResultEntity.getOperationMessage());
-            return "redirect:http://localhost/member/auth/login";
+            return "redirect:http://43.138.154.51/member/auth/login";
         }
 
         // 2.比较密码
         String encrypt = CrowFundingUtil.encrypt(loginpswd);
         if(!encrypt.equals(member.getUserpswd())){
             modelMap.addAttribute(CrowFundingConstant.MESSAGE_LOGIN_FAILED);
-            return "redirect:http://localhost/member/auth/login";
+            return "redirect:http://43.138.154.51/member/auth/login";
         }
 
         // 3.存入session
         MemberLoginVO memberLoginVO = new MemberLoginVO(member.getId(),member.getUsername(),member.getEmail());
         session.setAttribute(CrowFundingConstant.MEMBER_LOGIN_NAME,memberLoginVO);
 
-        return "redirect:http://localhost/member/auth/center";
+        return "redirect:http://43.138.154.51/member/auth/center";
     }
 
     /**
